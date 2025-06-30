@@ -119,13 +119,7 @@ class AddNewPackage extends Component {
         labelText: "Program",
         config: {
           name: "program",
-          options: [
-            { val: "BCT", text: "BCT" },
-            { val: "BEL", text: "BEL" },
-            {val: "BEX", text: "BEX"},
-            {val: "BME", text: "BME"},
-            
-          ],
+          options: [],
         },
         validation: {
           required: false,
