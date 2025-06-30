@@ -1,0 +1,45 @@
+.pointer {
+    width: 250px;
+    height: 40px;
+    position: relative;
+    background:rgb(23,100,131);
+    color:white;
+    margin-left:0px;
+    margin-top:10px;
+    padding:8px;
+    
+  }
+  .pointer-text
+  {
+      margin-left:18px;
+  }
+.notRegisteredButton
+{
+    float: right;
+    background: red;
+    padding:5px;
+    cursor: pointer;
+}
+
+  .pointer:after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    height: 0;
+    border-left: 20px solid #ededed;
+    border-top: 20px solid transparent;
+    border-bottom: 20px solid transparent;
+  }
+  .pointer:before {
+    content: "";
+    position: absolute;
+    right: -20px;
+    bottom: 0;
+    width: 0;
+    height: 0;
+    border-left: 20px solid rgb(23,100,131);
+    border-top: 20px solid transparent;
+    border-bottom: 20px solid transparent;
+  }

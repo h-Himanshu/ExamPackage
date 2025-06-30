@@ -1,0 +1,10 @@
+.vscode/*
+**/node_modules
+*.log
+
+**/yarn.lock
+
+public/*
+!public/assets
+
+!public/readme.txt

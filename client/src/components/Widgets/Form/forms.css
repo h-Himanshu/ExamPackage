@@ -1,0 +1,27 @@
+.main-form 
+{
+    margin-left:20%;
+    padding:20px;
+    background:white;
+    width:100%;
+    color:black;
+}
+
+.form-fieldset 
+{
+    background: #ededed;
+    color:black;
+    height:30px;
+    text-align: left;
+    margin-bottom: 10px;
+    width:88%
+
+}
+.control-label:after { 
+    color: #d00;
+    content: "*";
+    position: absolute;
+    margin-left: 3px;
+    top:0px;
+    font-size:25px;
+}

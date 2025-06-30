@@ -1,0 +1,56 @@
+{
+	"name": "exam-package-management",
+	"version": "0.1.0",
+	"private": true,
+	"dependencies": {
+		"@emotion/react": "^11.14.0",
+		"@emotion/styled": "^11.14.0",
+		"@fortawesome/fontawesome-svg-core": "^6.7.2",
+		"@fortawesome/free-solid-svg-icons": "^6.7.2",
+		"@fortawesome/react-fontawesome": "^0.2.2",
+		"@mui/icons-material": "^7.1.2",
+		"@mui/material": "^7.1.2",
+		"@vitejs/plugin-react": "^4.6.0",
+		"ad-bs-converter": "^0.5.0",
+		"axios": "^1.10.0",
+		"jquery": "^3.7.1",
+		"mdb-react-ui-kit": "^9.0.0",
+		"mdbreact": "^5.2.0",
+		"nepali-date-picker": "^2.0.2",
+		"react": "^19.1.0",
+		"react-breadcrumbs-dynamic": "^1.2.1",
+		"react-confirm-alert": "^3.0.6",
+		"react-datepicker-nepali": "^1.0.1",
+		"react-dom": "^19.1.0",
+		"react-dropdown-select": "^4.12.2",
+		"react-fontawesome": "^1.7.1",
+		"react-router-dom": "^7.6.2",
+		"react-simple-sidenav": "^2.0.0",
+		"react-toastify": "^11.0.5",
+		"recharts": "^3.0.0",
+		"vite": "^7.0.0"
+	},
+	"scripts": {
+		"start": "vite --port 9131",
+		"build": "vite build",
+		"serve": "vite preview"
+	},
+	"eslintConfig": {
+		"extends": "react-app"
+	},
+	"browserslist": {
+		"production": [
+			">0.2%",
+			"not dead",
+			"not op_mini all"
+		],
+		"development": [
+			"last 1 chrome version",
+			"last 1 firefox version",
+			"last 1 safari version"
+		]
+	},
+	"devDependencies": {
+		"eslint-plugin-react-hooks": "^5.2.0"
+	}
+}

@@ -1,0 +1,15 @@
+{
+  "short_name": "EPMS",
+  "name": "Exam Package Management System",
+  "icons": [
+    {
+    "src": "images/logo.png",
+    "type": "image/png",
+    "sizes": "512x512 192x192"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}

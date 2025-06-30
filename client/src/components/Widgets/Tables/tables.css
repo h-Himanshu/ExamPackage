@@ -1,0 +1,57 @@
+.table2{
+    margin-top:10px;
+    margin-left:5px;
+    border-collapse:  separate;
+    margin-right:5px;
+    
+}
+.table thead
+{
+    
+    margin-right:5px;
+    color:white;
+    background: rgb(23,100,131);
+}
+
+tbody {
+    background: white;
+}
+tbody tr {
+    margin-right:5px;
+}
+thead th,tbody tr td {
+    text-align: center;
+}
+
+
+.action 
+{
+    display: inline-flex;
+}
+.action-element
+{
+    margin-left: 15px;
+}
+.dataTable thead:last-child
+{
+    display: none;
+}
+.dataTables_paginate
+{
+    float: right;
+}
+.tableOptions{
+    background: white;
+}
+.dataTables_wrapper .row:first-of-type{
+    background: white !important;
+    margin-top:-10px;
+    margin-bottom: 10px;
+}
+.dataTables_filter{
+    float:right;
+}
+.dataTables_length label
+{
+    margin-left:15px;
+}

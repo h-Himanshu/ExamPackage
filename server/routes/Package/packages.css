@@ -1,0 +1,56 @@
+.chart-buttons
+{
+    display: inline-flex;
+}
+.chart-buttons span
+{
+    margin-left: 10px;
+}
+.buttonText 
+{
+    padding:10px;
+}
+.package-button 
+{
+    color:white;
+    margin:10px;
+    width:400px;
+    height:50px;
+    display: block;
+    text-align: center;
+
+}
+.package-chart-select {
+    display :inline;
+    width:100%;
+}
+.breadcrumb 
+{
+    background: white;
+}
+.p {
+    display: inline-flex;
+    width:100%;
+  
+}
+.left-floated-form
+{
+    margin-left:0% !important;
+    width:50%;
+    margin:0% !important;
+}
+.main-form{
+    margin-left:0% !important;
+    width:90%;
+}
+dt
+{
+    padding-right: 20px;
+}
+.packageHistoryTable tr,.packageHistoryTable td{
+    border: 0.5px black solid;
+}
+.packageHistoryTable tbody tr td:first-of-type
+{
+    font-weight: bold;
+}
