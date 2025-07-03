@@ -120,7 +120,8 @@ CREATE TABLE `person` (
   `fullName` varchar(255) NOT NULL,
   `contact` varchar(10) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
-  `collegeID` int(11) DEFAULT NULL
+  `collegeID` int(11) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------

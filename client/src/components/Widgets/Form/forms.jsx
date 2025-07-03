@@ -212,29 +212,39 @@ const FormFields = props => {
         );
 
         break;
-      case "inputselect":
+      case "inputselect": {
+        const safeOptions =
+          Array.isArray(values.config.options) && values.config.options.length > 0
+            ? values.config.options.filter(
+                opt => opt && typeof opt.val !== "undefined" && typeof opt.text !== "undefined"
+              )
+            : [];
         formTemplate = (
           <div className="form-group row">
             {showLabel(values.required, values.labelText)}
             <div className="col-sm-6" style={{ display: "flex" }}>
-              <Select
-                options={values.config.options}
-                clearable={true}
-                onChange={values => setValues(values, data.id)}
-                searchBy="text"
-                labelField="text"
-                className="form-control"
-              />
+              {safeOptions.length > 0 ? (
+                <Select
+                  options={safeOptions}
+                  clearable={true}
+                  onChange={values => setValues(values, data.id)}
+                  searchBy="text"
+                  labelField="text"
+                  valueField="val"
+                  className="form-control"
+                />
+              ) : (
+                <div style={{ color: "red" }}>No package options available</div>
+              )}
               {values.removeButton ? (
                 <button
                   className="btn btn-md btn-danger"
                   style={{ marginTop: "-1.8px", marginLeft: "10px" }}
                   onClick={() => {
-                    // console.log(props);
                     props.dynamicDecrease(values.id);
                   }}
                 >
-                  Delete
+                  Remove
                 </button>
               ) : null}
 
@@ -247,6 +257,7 @@ const FormFields = props => {
           </div>
         );
         break;
+      } // properly close the block before next case
       case "dynamic":
         formTemplate = (
           <div>

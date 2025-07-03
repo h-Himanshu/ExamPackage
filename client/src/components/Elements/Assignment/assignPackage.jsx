@@ -18,6 +18,16 @@ class AssignPackage extends Component {
   id = 0;
   options = [];
 
+  // Helper to ensure options are always in correct format
+  getValidOptions = () => {
+    if (Array.isArray(this.options) && this.options.length > 0) {
+      return this.options.filter(
+        (opt) => opt && typeof opt.val !== 'undefined' && typeof opt.text !== 'undefined'
+      );
+    }
+    return [];
+  }
+
   state = {
     personID: "",
     personData: {},
@@ -166,7 +176,7 @@ class AssignPackage extends Component {
       labelText: "Package",
       config: {
         name: "Package",
-        options: this.options,
+        options: this.getValidOptions(), // Always use the safe getter
       },
       validation: {
         required: false,
@@ -257,16 +267,20 @@ class AssignPackage extends Component {
         });
       });
 
-    //Fetch data from API and store data in options
+    // Fetch data from API and store data in options
     fetch("/API/query/getNotAssignedPackages")
       .then((res) => res.json())
       .then((json) => {
+        const newOptions = [];
         for (let pkg of json) {
           let temp = {};
           temp["val"] = pkg.id;
           temp["text"] = pkg.packageCode;
-          this.options.push(temp);
+          newOptions.push(temp);
         }
+        this.options = newOptions;
+        // Force a re-render so that any new dynamic children get the updated options
+        this.setState((prevState) => ({ ...prevState }));
       });
   };
 
