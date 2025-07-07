@@ -1,7 +1,9 @@
 import axios from "axios";
 import { MDBCard, MDBCardBody, MDBCardHeader } from "mdb-react-ui-kit";
 import React from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import FormFields from "../../Widgets/Form/forms.jsx";
+import BreadCrumb from "../../Widgets/Breadcrumb/breadcrumb.jsx";
 
 class Person extends React.Component {
   state = {
@@ -326,19 +328,21 @@ class Person extends React.Component {
     else if (isInserting == "onProgress") return <h3>Insertion in progress</h3>;
     else if (isInserting == "error") return <h3>Error inserting data</h3>;
     else if (isInserting == "empty") return <h3>Select a file to insert</h3>;
-    else return <h3>{this.props.history.goBack()}</h3>;
+    else {
+      this.props.navigate(-1);
+      return null;
+    }
   };
   render() {
+    const { personID } = this.props.params || {};
     const breadCrumbItems = [
       {
         text: "Persons",
-        link: "/admin/persons"
+        link: "/admin/intermediate"
       },
       {
-        text: this.props.match.params.personID ? "Edit Person" : "Add New Person",
-        link: this.props.match.params.personID ? 
-          `/admin/edit-person/${this.props.match.params.personID}` : 
-          "/admin/add-new-person"
+        text: personID ? "Edit Person" : "Add New Person",
+        link: personID ? `/admin/edit-person/${personID}` : "/admin/add-new-person"
       }
     ];
 

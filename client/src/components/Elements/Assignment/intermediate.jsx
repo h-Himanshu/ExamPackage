@@ -7,7 +7,7 @@ import "./assignment.css";
 
 const breadCrumbItem = [
   {
-    text: "Person Table",
+    text: "Persons",
     link: "/admin/intermediate",
   },
 ];

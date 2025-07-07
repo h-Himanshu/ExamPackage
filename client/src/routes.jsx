@@ -24,7 +24,7 @@ import AddDepartment from "./components/Elements/Department/addDepartment.jsx";
 import Subject from "./components/Elements/Subjects/subjectTable.jsx";
 import AddNewSubject from "./components/Elements/Subjects/addSubject.jsx";
 
-import Person from "./components/Elements/Person/person.jsx";
+import PersonWrapper from "./components/Elements/Person/PersonWrapper.jsx";
 
 import Program from "./components/Elements/Program/programTable.jsx";
 import AddNewProgram from "./components/Elements/Program/addProgram.jsx";
@@ -143,11 +143,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/admin/edit-person/:personID",
-        element: <Layout><Person /></Layout>,
+        element: <PersonWrapper />,
       },
       {
         path: '/admin/add-new-person',
-        element: <Layout><Person /></Layout>
+        element: <PersonWrapper />
       },
       {
         path: '/admin/subjects',
