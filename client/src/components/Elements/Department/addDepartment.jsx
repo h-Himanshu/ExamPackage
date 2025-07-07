@@ -1,5 +1,17 @@
 import { Component } from "react";
 import FormFields from "../../Widgets/Form/forms.jsx";
+import BreadCrumb from "../../Widgets/Breadcrumb/breadcrumb.jsx";
+
+const breadCrumbItems = [
+  {
+    text: "Departments",
+    link: "/admin/departments"
+  },
+  {
+    text: "Add New Department",
+    link: "/admin/add-new-department"
+  }
+];
 import DepartmentTable from "./departmentHome.jsx";
 
 class AddNewDepartment extends Component {
@@ -167,7 +179,12 @@ class AddNewDepartment extends Component {
   };
 
   render() {
-    return <div className="container-fluid">{this.mainContent()}</div>;
+    return (
+      <div>
+        <BreadCrumb breadcrumbItems={breadCrumbItems} />
+        <div className="container-fluid">{this.mainContent()}</div>
+      </div>
+    );
   }
 }
 

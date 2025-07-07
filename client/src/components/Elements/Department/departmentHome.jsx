@@ -3,6 +3,13 @@ import React from "react";
 import Breadcrumb from "../../Widgets/Breadcrumb/breadcrumb.jsx";
 import Table from "../../Widgets/Tables/tables.jsx";
 
+const breadCrumbItems = [
+  {
+    text: "Department",
+    link: "/admin/departments",
+  },
+];
+
 class DepartmentHome extends React.Component {
   headings = [
     {
@@ -57,7 +64,7 @@ class DepartmentHome extends React.Component {
   render() {
     return (
       <div>
-        <Breadcrumb />
+        <Breadcrumb breadcrumbItems={breadCrumbItems} />
         <Table
           headings={this.headings}
           tableData={

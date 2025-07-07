@@ -8,9 +8,13 @@ import adbs from "ad-bs-converter";
 
 const breadCrumbItems = [
   {
-    text: "Add New Exam",
-    link: "/admin/add-new-exam",
+    text: "Exams",
+    link: "/admin/exams"
   },
+  {
+    text: "Add New Exam",
+    link: "/admin/add-new-exam"
+  }
 ];
 
 class AddNewExam extends Component {

@@ -387,4 +387,22 @@ router.put("/editProgram/:id", (req, res) => {
 
 //   connection.release();
 // });
+// Update package status
+router.put("/package/:id/status", (req, res) => {
+  const { status } = req.body;
+  console.log("Updating package ID:", req.params.id, "to status:", status); // <-- Add this
+  if (!status) {
+    return res.status(400).json({ message: "Status is required" });
+  }
+  const db = require("../database").connectToDB();
+  db.run("UPDATE package SET status = ? WHERE id = ?", [status, req.params.id], function(err) {
+    if (err) {
+      console.log("SQL error:", err); // <-- Add this
+      return res.status(400).json({ message: "Failed to update status" });
+    }
+    res.status(200).json({ message: "Status updated" });
+  });
+  db.close();
+});
+
 module.exports = router;

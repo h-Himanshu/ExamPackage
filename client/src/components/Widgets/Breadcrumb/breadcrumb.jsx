@@ -20,8 +20,7 @@ const BreadcrumSection = (props) => {
       </MDBBreadcrumbItem>
       {breadCrumbItem()}
       {/* <MDBBreadcrumbItem>Home</MDBBreadcrumbItem>
-                  <MDBBreadcrumbItem active>Dashboard</MDBBreadcrumbItem> */}
-    </MDBBreadcrumb>
+                  <MDBBreadcrumbItem active>Dashboard</MDBBreadcrumbItem> */}    </MDBBreadcrumb>
   );
 };
 

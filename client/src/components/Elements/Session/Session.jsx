@@ -1,5 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import BreadCrumbs from "../../Widgets/Breadcrumb/breadcrumb";
+
+const breadCrumbItems = [
+  {
+    text: "Session Management",
+    link: "/admin/session",
+  },
+];
 
 const Session = () => {
   const [newSessionName, setNewSessionName] = useState("");
@@ -83,7 +91,8 @@ const Session = () => {
   };
 
   return (
-    <div style={{ padding: "40px" }}>
+    <div className="container-fluid px-4">
+      <BreadCrumbs breadcrumbItems={breadCrumbItems} />
       <div className="mt-2 ">
         <h4>Start New Session</h4>
         <label> New Session Name</label>

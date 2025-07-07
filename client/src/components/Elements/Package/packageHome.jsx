@@ -1,8 +1,14 @@
 import React from "react";
-
 import BreadCrumb from "../../Widgets/Breadcrumb/breadcrumb.jsx";
 import PackageTable from "./packageTable.jsx";
 import "./packages.css";
+
+const breadCrumbItems = [
+  {
+    text: "Packages",
+    link: "/admin/packages"
+  }
+];
 
 // const buttons = [
 //     {
@@ -86,7 +92,7 @@ class PackageHome extends React.Component {
     console.log("Package Home Component");
     return (
       <div>
-        <BreadCrumb className="breadcrumb" />
+        <BreadCrumb breadcrumbItems={breadCrumbItems} />
         {/* <div className="chart-buttons">
                     <MDBContainer>
                       <MDBCard>

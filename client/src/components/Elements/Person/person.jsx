@@ -329,8 +329,22 @@ class Person extends React.Component {
     else return <h3>{this.props.history.goBack()}</h3>;
   };
   render() {
+    const breadCrumbItems = [
+      {
+        text: "Persons",
+        link: "/admin/persons"
+      },
+      {
+        text: this.props.match.params.personID ? "Edit Person" : "Add New Person",
+        link: this.props.match.params.personID ? 
+          `/admin/edit-person/${this.props.match.params.personID}` : 
+          "/admin/add-new-person"
+      }
+    ];
+
     return (
-      <div clasName="container">
+      <div className="container">
+        <BreadCrumb breadcrumbItems={breadCrumbItems} />
         {/* {this.errorCheck()} */}
         <MDBCard>
           <MDBCardHeader>

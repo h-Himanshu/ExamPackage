@@ -2,6 +2,14 @@ import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { Component, Fragment } from "react";
 import utils from "../../../utils/utils.jsx";
 import Table from "../../Widgets/Tables/tables.jsx";
+import Breadcrumb from "../../Widgets/Breadcrumb/breadcrumb.jsx";
+
+const breadCrumbItems = [
+  {
+    text: "Programs",
+    link: "/admin/programs",
+  },
+];
 class ProgramTable extends Component {
   headings = [
     {
@@ -89,6 +97,7 @@ class ProgramTable extends Component {
   render() {
     return (
       <Fragment>
+        <Breadcrumb breadcrumbItems={breadCrumbItems} />
         <Table
           headings={this.headings}
           tableData={

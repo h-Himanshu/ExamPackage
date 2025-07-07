@@ -1,6 +1,14 @@
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 import { Link } from "react-router-dom";
+import BreadCrumb from "../../Widgets/Breadcrumb/breadcrumb.jsx";
+
+const breadCrumbItems = [
+  {
+    text: "Persons",
+    link: "/admin/persons"
+  }
+];
 import utils from "../../../utils/utils.jsx";
 import Table from "../../Widgets/Tables/tables.jsx";
 import "./persons.css";

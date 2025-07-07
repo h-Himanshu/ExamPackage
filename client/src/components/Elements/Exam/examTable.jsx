@@ -4,6 +4,14 @@ import React from "react";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import utils from "../../../utils/utils.jsx";
 import Table from "../../Widgets/Tables/tables.jsx";
+import Breadcrumb from "../../Widgets/Breadcrumb/breadcrumb.jsx";
+
+const breadCrumbItems = [
+  {
+    text: "Exams",
+    link: "/admin/exams",
+  },
+];
 
 class ExamTable extends React.Component {
   quickLinks = [{ text: "Add New Exam", link: "/admin/add-new-exam" }];
@@ -108,19 +116,22 @@ class ExamTable extends React.Component {
     console.log("error");
     console.log(this.state.tableData);
     return (
-      <div className="examTable">
-        <Table
-          headings={this.headings}
-          tableData={
-            this.state.isFiltered ? this.state.filtered : this.state.groupedData
-          }
-          state={this.state}
-          setState={(states) => this.statehandler(states)}
-          actions={this.actions}
-          detailParams={this.state.detailedGroupedData}
-          categories={this.state.categories}
-          quickLinks={this.quickLinks}
-        />
+      <div>
+        <Breadcrumb breadcrumbItems={breadCrumbItems} />
+        <div className="examTable">
+          <Table
+            headings={this.headings}
+            tableData={
+              this.state.isFiltered ? this.state.filtered : this.state.groupedData
+            }
+            state={this.state}
+            setState={(states) => this.statehandler(states)}
+            actions={this.actions}
+            detailParams={this.state.detailedGroupedData}
+            categories={this.state.categories}
+            quickLinks={this.quickLinks}
+          />
+        </div>
       </div>
     );
   }

@@ -143,11 +143,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/admin/edit-person/:personID",
-        element: <Person />,
+        element: <Layout><Person /></Layout>,
       },
       {
         path: '/admin/add-new-person',
-        element: <Person />
+        element: <Layout><Person /></Layout>
       },
       {
         path: '/admin/subjects',

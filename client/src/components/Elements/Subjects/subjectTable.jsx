@@ -2,6 +2,14 @@ import React, { Component, Fragment, useState } from "react";
 import Table from "../../Widgets/Tables/tables.jsx";
 import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import utils from "../../../utils/utils.jsx";
+import Breadcrumb from "../../Widgets/Breadcrumb/breadcrumb.jsx";
+
+const breadCrumbItems = [
+  {
+    text: "Subjects",
+    link: "/admin/subjects",
+  },
+];
 
 
 class SubjectTable extends Component {
@@ -80,6 +88,7 @@ class SubjectTable extends Component {
   render() {
     return (
       <Fragment>
+        <Breadcrumb breadcrumbItems={breadCrumbItems} />
         <Table
           headings={this.headings}
           tableData={

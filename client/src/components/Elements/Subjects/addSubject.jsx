@@ -1,6 +1,18 @@
 import React, { Component } from "react";
 import FormFields from "../../Widgets/Form/forms.jsx";
+import BreadCrumb from "../../Widgets/Breadcrumb/breadcrumb.jsx";
 import SubjectTable from "./subjectTable.jsx";
+
+const breadCrumbItems = [
+  {
+    text: "Subjects",
+    link: "/admin/subjects"
+  },
+  {
+    text: "Add New Subject",
+    link: "/admin/add-new-subject"
+  }
+];
 
 class AddNewSubject extends Component {
   constructor(props) {
@@ -338,7 +350,12 @@ class AddNewSubject extends Component {
   };
 
   render() {
-    return <div className="container-fluid">{this.mainContent()}</div>;
+    return (
+      <div>
+        <BreadCrumb breadcrumbItems={breadCrumbItems} />
+        <div className="container-fluid">{this.mainContent()}</div>
+      </div>
+    );
   }
 }
 
