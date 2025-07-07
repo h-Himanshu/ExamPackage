@@ -418,7 +418,7 @@ class AddNewExam extends Component {
         res.json().then((body) => {
           let { postedData } = this.state;
           if (res.status === 200) {
-            if (examID !== undefined || event.target.id === "save") {
+            if (examID !== undefined) {
               window.location = "/admin";
               // navigate(-1);
               return;

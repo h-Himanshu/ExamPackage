@@ -152,7 +152,7 @@ class AddNewProgram extends Component {
         res.json().then((body) => {
           let { postedData } = this.state;
           if (res.status === 200) {
-            if (programID !== undefined || event.target.id === "save") {
+            if (programID !== undefined) {
               this.props.history.goBack();
               return;
             }

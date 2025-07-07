@@ -274,10 +274,6 @@ class AddNewSubject extends Component {
         res.json().then((body) => {
           let { postedData } = this.state;
           if (res.status === 200) {
-            // if (subjectID !== undefined || event.target.id === "save") {
-            //   this.props.history.goBack();
-            //   return;
-            // }
             console.log(body);
             let dataToDisplay = body;
             postedData.push(dataToDisplay);

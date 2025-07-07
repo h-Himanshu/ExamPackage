@@ -323,15 +323,6 @@ const FormFields = props => {
     >
       {renderFields()}
 
-      <button
-        className="btn btn-primary"
-        id="save"
-        onClick={event => props.submitForm(event)}
-        type="submit"
-      >
-        Save
-      </button>
-
        <button
         className="btn btn-secondary"
         type="reset"

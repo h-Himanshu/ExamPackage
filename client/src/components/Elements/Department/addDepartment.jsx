@@ -100,7 +100,7 @@ class AddNewDepartment extends Component {
           console.log(body);
           let { postedData } = this.state;
           if (res.status === 200) {
-            if (departmentID !== undefined || event.target.id === "save") {
+            if (departmentID !== undefined) {
               this.props.history.goBack();
               return;
             }

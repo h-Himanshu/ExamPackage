@@ -249,7 +249,7 @@ class Person extends React.Component {
         // console.log(res);
         const personID = this.props.match.params.personID;
         if (res.status === 200) {
-          if (personID !== undefined || event.target.id === "save")
+          if (personID !== undefined)
             this.props.history.goBack();
           this.setState({ error: false });
         } else this.setState({ error: true, errorText: res.statusText });
