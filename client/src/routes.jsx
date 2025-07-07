@@ -7,6 +7,7 @@ import Layout from "./hoc/layout.jsx";
 import Home from "./components/Home/home.jsx";
 
 import AddPackage from "./components/Elements/Package/addpackage.jsx";
+import EditPackage from "./components/Elements/Package/editpackage.jsx";
 import Intermediate from "./components/Elements/Assignment/intermediate.jsx";
 import AssignPackage from "./components/Elements/Assignment/assignPackage.jsx";
 import PackageHome from "./components/Elements/Package/packageHome.jsx";
@@ -110,7 +111,7 @@ const router = createBrowserRouter([
       },
       {
         path: '/admin/edit-package/:packageID',
-        element: <AddPackage />
+        element: <EditPackage />
       },
       {
         path: '/admin/assign-package/:personID',

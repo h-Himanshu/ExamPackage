@@ -1,4 +1,4 @@
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faEdit } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 import utils from "../../../utils/utils.jsx";
 import Table from "../../Widgets/Tables/tables.jsx";
@@ -64,14 +64,10 @@ class PackageTable extends React.Component {
   ];
   actions = [
     // {
-    //   text: "Edit",
-    //   icon: faEdit,
-    //   link: "/admin/edit-package/",
-    // },
     {
-      text: "Delete",
-      icon: faTrash,
-      link: "/admin/delete/package/",
+      text: "Edit",
+      icon: faEdit,
+      link: "/admin/edit-package/", // The Table component appends the package ID
     },
   ];
   quickLinks = [
