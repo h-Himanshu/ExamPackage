@@ -11,8 +11,7 @@ router.get("/getPendingPackages", (req, res) => {
 				(SELECT ex.id AS exam_id, sub.subjectName FROM subject sub INNER JOIN exam ex ON ex.subjectID = sub.id )
 				AS exam_sub ON exam_sub.exam_id = pac.examID)
 			 AS sep ON sep.package_id = ass.packageID AND ass.dateOfSubmission IS NULL )
-		 AS sepa ON sepa.person_id = per.id ORDER BY dateOfAssignment`;
-
+		 AS sepa ON sepa.person_id = per.id ORDER BY dateOfAssignment`
   const db = connectToDB();
 
   db.all(pendingPackagequery, [], (err, rows) => {

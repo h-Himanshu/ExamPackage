@@ -126,7 +126,7 @@ class PendingPackageTable extends React.Component {
           element["status"] = diff < 0 ? "Overdue" : "Pending";
           element["dateOfDeadline"] = element["dateOfDeadline"].split("T")[0];
           element["dateOfAssignment"] =
-            element["dateOfAssignment"].split("T")[0];
+          element["dateOfAssignment"].split("T")[0];
         });
 
         json.filter((elem) => {

@@ -1,8 +1,7 @@
 import React from "react";
-import "./packages.css";
 import { useParams, useNavigate } from "react-router-dom";
-
 import { useEffect, useState } from "react";
+import "./packages.css";
 
 const EditPackage = () => {
   const { packageID } = useParams();
@@ -23,7 +22,6 @@ const EditPackage = () => {
       const data = await res.json();
       console.log('Status fetch response:', { status: res.status, data });
       
-      // Since the endpoint returns an array, take the first item
       const packageData = Array.isArray(data) ? data[0] : data;
       
       if (packageData && packageData.status) {
@@ -74,7 +72,6 @@ const EditPackage = () => {
       }
       
       const data = await res.json();
-      // Since the endpoint returns an array, take the first item
       const packageData = Array.isArray(data) ? data[0] : data;
       
       if (packageData && packageData.status) {
@@ -85,7 +82,7 @@ const EditPackage = () => {
       }
     } catch (err) {
       console.error('Error fetching latest status:', err);
-      throw err; // Re-throw to be handled by the caller
+      throw err;
     }
   };
 
@@ -105,7 +102,6 @@ const EditPackage = () => {
         throw new Error(`Server responded with ${res.status}: ${responseData.message || 'Unknown error'}`);
       }
       
-      // Fetch the latest status from the database
       console.log('Fetching latest status after update...');
       await fetchLatestStatus();
       console.log('Status after update:', status);
@@ -117,19 +113,63 @@ const EditPackage = () => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f8fafc 0%, #e0e7ef 100%)', display: 'flex', justifyContent: 'center', alignItems: 'center', fontFamily: 'Roboto, Arial, Helvetica, sans-serif' }}>
-      <div style={{ background: '#fff', boxShadow: '0 6px 24px rgba(60,72,88,0.12)', borderRadius: '16px', padding: '2.5rem 2.5rem 2rem 2.5rem', minWidth: 340, maxWidth: 400, width: '100%' }}>
-        <h2 style={{ color: '#1a365d', marginBottom: '2rem', letterSpacing: '0.04em', fontWeight: 700 }}>Edit Package</h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+    <div style={{ 
+      minHeight: '100vh', 
+      background: 'linear-gradient(135deg, #f8fafc 0%, #e0e7ef 100%)', 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      fontFamily: 'Roboto, Arial, Helvetica, sans-serif' 
+    }}>
+      <div style={{ 
+        background: '#fff', 
+        boxShadow: '0 6px 24px rgba(60,72,88,0.12)', 
+        borderRadius: '16px', 
+        padding: '2.5rem', 
+        minWidth: 340, 
+        maxWidth: 400, 
+        width: '100%' 
+      }}>
+        <h2 style={{ 
+          color: '#1a365d', 
+          marginBottom: '2rem', 
+          letterSpacing: '0.04em', 
+          fontWeight: 700 
+        }}>
+          Edit Package
+        </h2>
+        
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: '1.2rem' 
+        }}>
           <button 
-            style={{ background: 'linear-gradient(90deg, #ff5858 0%)', color: 'white', padding: '0.75rem 1.5rem', border: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 600, cursor: 'pointer', transition: 'transform 0.1s', boxShadow: '0 2px 8px rgba(255,88,88,0.08)' }}
+            style={{ 
+              background: 'linear-gradient(90deg, #ff5858 0%, #ff0000 100%)', 
+              color: 'white', 
+              padding: '0.75rem 1.5rem', 
+              border: 'none', 
+              borderRadius: '8px', 
+              fontSize: '1rem', 
+              fontWeight: 600, 
+              cursor: 'pointer', 
+              transition: 'all 0.2s ease-in-out',
+              boxShadow: '0 2px 8px rgba(255,88,88,0.2)',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 4px 12px rgba(255,88,88,0.3)'
+              },
+              '&:active': {
+                transform: 'translateY(0)'
+              }
+            }}
             onClick={handleDelete}
           >
             Delete Package
           </button>
-           {loading ? (
-            <button disabled style={{ opacity: 0.6 }}>Loading...</button>
-          ) : status === "Scrutinized" ? (
+
+          {loading ? (
             <button 
               disabled 
               style={{ 
@@ -139,30 +179,42 @@ const EditPackage = () => {
                 border: 'none', 
                 borderRadius: '8px', 
                 fontSize: '1rem', 
-                fontWeight: 600 
+                fontWeight: 600,
+                opacity: 0.6,
+                cursor: 'not-allowed'
               }}
             >
-              Scrutinized
+              Loading...
             </button>
           ) : (
             <button
+              disabled={status !== "Submitted"}
               style={{ 
-                background: status === "Submitted" 
-                  ? 'linear-gradient(90deg, #0077b6 0%, #00b4d8 100%)' 
-                  : 'linear-gradient(90deg, #38b000 0%, #70e000 100%)',
+                background: status !== "Submitted" 
+                  ? 'gray'
+                  :'linear-gradient(90deg, #0077b6 0%, #00b4d8 100%)' ,
                 color: 'white', 
                 padding: '0.75rem 1.5rem', 
                 border: 'none', 
                 borderRadius: '8px', 
                 fontSize: '1rem', 
                 fontWeight: 600, 
-                cursor: 'pointer', 
-                transition: 'transform 0.1s', 
-                boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+                cursor: status === "Submitted" ? 'pointer' : 'not-allowed',
+                opacity: status === "Submitted" ? 1 : 0.7,
+                transition: 'all 0.2s ease-in-out',
+                boxShadow: status === "Submitted" ? '0 2px 8px rgba(0,0,0,0.15)' : 'none',
+                transform: status === "Submitted" ? 'translateY(-1px)' : 'none',
+                '&:hover': {
+                  transform: status === "Submitted" ? 'translateY(-2px)' : 'none',
+                  boxShadow: status === "Submitted" ? '0 4px 12px rgba(0,0,0,0.2)' : 'none'
+                },
+                '&:active': {
+                  transform: status === "Submitted" ? 'translateY(0)' : 'none'
+                }
               }}
-              onClick={() => handleStatusChange(status === "Pending" ? "Submitted" : "Scrutinized")}
+              onClick={() => handleStatusChange("Scrutinized")}
             >
-              {status === "Pending" ? "Submit" : "Scrutinize"}
+              {status === "Scrutinized" ? "Scrutinized" : "Scrutinize"}
             </button>
           )}
         </div>
