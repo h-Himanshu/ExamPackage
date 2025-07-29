@@ -5,6 +5,12 @@ import { calendarFunctions } from "../../Widgets/jquery.nepaliDatePicker";
 import adbs from "ad-bs-converter";
 import Form from "../../Widgets/Form/forms.jsx";
 
+// Utility function to convert English digits to Nepali digits
+function toNepaliDigits(str) {
+  const engToNep = { '0': '०', '1': '१', '2': '२', '3': '३', '4': '४', '5': '५', '6': '६', '7': '७', '8': '८', '9': '९' };
+  return String(str).replace(/[0-9]/g, d => engToNep[d]);
+}
+
 class ReceivePackage extends Component {
   state = {
     packageReceived: false,
@@ -243,6 +249,21 @@ class ReceivePackage extends Component {
         );
         this.setState({
           formData: formData,
+        }, () => {
+          // Convert dateOfAssignment and dateOfDeadline to Nepali digits after setting formData
+          this.setState(prevState => ({
+            formData: {
+              ...prevState.formData,
+              dateOfAssignment: {
+                ...prevState.formData.dateOfAssignment,
+                value: toNepaliDigits(prevState.formData.dateOfAssignment.value)
+              },
+              dateOfDeadline: {
+                ...prevState.formData.dateOfDeadline,
+                value: toNepaliDigits(prevState.formData.dateOfDeadline.value)
+              }
+            }
+          }));
         });
       });
   };
