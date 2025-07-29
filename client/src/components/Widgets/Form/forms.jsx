@@ -286,7 +286,7 @@ const FormFields = props => {
                   value={item.val}
                   onChange={event => changeHandler(event, data.id)}
                 />
-                <label class="form-check-label">{item.text}</label>
+                <label className="form-check-label">{item.text}</label>
               </div>
             ))}
           </div>
@@ -302,7 +302,7 @@ const FormFields = props => {
               style={{ color: "white" }}
               onClick={increaseChild}
             >
-              <i class="fas fa-plus-circle"> </i>
+              <i className="fas fa-plus-circle"> </i>
               Add
             </button>
             {/* {renderChild(data.settings.childs)} */}

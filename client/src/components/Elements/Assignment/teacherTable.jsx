@@ -12,10 +12,12 @@ const breadCrumbItem = [
   },
 ];
 
-class Intermediate extends Component {
+class TeacherTable extends Component {
   state = {
     tableData: [],
   };
+
+
 
   render() {
     return (
@@ -29,7 +31,7 @@ class Intermediate extends Component {
             </Link>
           </MDBCardHeader>
           <MDBCardBody>
-            <PersonTable />
+            <PersonTable id={this.props.id} />
           </MDBCardBody>
         </MDBCard>
       </React.Fragment>
@@ -37,4 +39,4 @@ class Intermediate extends Component {
   }
 }
 
-export default Intermediate;
+export default TeacherTable;

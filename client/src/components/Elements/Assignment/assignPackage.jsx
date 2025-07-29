@@ -3,7 +3,8 @@ import { Component } from "react";
 import BreadCrumbs from "../../Widgets/Breadcrumb/breadcrumb.jsx";
 import FormFields from "../../Widgets/Form/forms.jsx";
 import { calendarFunctions } from "../../Widgets/jquery.nepaliDatePicker";
-
+import { useParams } from 'react-router-dom';
+// const { packageCode, personID } = useParams();
 const breadCrumbItem = [
   {
     text: "Person Table",
@@ -32,6 +33,21 @@ class AssignPackage extends Component {
     personID: "",
     personData: {},
     formData: {
+      packageCode: {
+        element: "input",
+        value: "",
+        label: true,
+        labelText: "Package Code",
+        config: {
+          name: "packageCode_input",
+          type: "text",
+          placeholder: "Package Code",
+          readOnly: true,
+        },
+        valid: true,
+        touched: false,
+        validationText: "",
+      },
       name: {
         element: "input",
         value: "",
@@ -151,10 +167,7 @@ class AssignPackage extends Component {
         touched: false,
         validationText: "",
       },
-      packages: {
-        element: "dynamicbtn",
-        childs: [],
-      },
+      
     },
   };
 
@@ -236,9 +249,36 @@ class AssignPackage extends Component {
     );
     let params = { personID };
 
-    Date.prototype.addDays = function (d) {
-      return new Date(this.valueOf() + 864e5 * d);
-    };
+    // Get packageCode from URL params
+    const url = window.location.pathname;
+const parts = url.split("/");
+let packageId = "";
+if (parts.length >= 4) {
+  packageId = parts[3];
+}
+
+// Fetch the packageCode using the packageId
+fetch(`/API/query/getOnePackage/${packageId}`)
+  .then(res => res.json())
+  .then(data => {
+    if (Array.isArray(data) && data.length > 0) {
+      this.setState(prevState => ({
+        ...prevState,
+        formData: {
+          ...prevState.formData,
+          packageCode: {
+            ...prevState.formData.packageCode,
+            value: data[0].packageCode
+          }
+        }
+      }));
+    }
+  });
+
+// Continue with the rest of your logic...
+Date.prototype.addDays = function (d) {
+  return new Date(this.valueOf() + 864e5 * d);
+};
     fetch(`/API/query/getOnePerson/${params.personID}`)
       .then((res) => res.json())
       .then((json) => {
@@ -376,7 +416,10 @@ class AssignPackage extends Component {
         }
       }
     }
-    console.log("datatosubmite", dataToSubmit);
+    // Always include packages field for backend compatibility
+    if (!('packages' in dataToSubmit)) {
+      dataToSubmit["packages"] = [this.state.formData.packageCode.value];
+    }
     fetch("/API/query/addAssignment", {
       method: "POST",
       headers: {
@@ -387,7 +430,7 @@ class AssignPackage extends Component {
     })
       .then((res) => {
         console.log(res);
-        this.props.history.goBack();
+        this.props.navigate(-1);
       })
       .catch((err) => {
         console.log(err);

@@ -199,10 +199,15 @@ router.get("/getPackages", (req, res) => {
 });
 
 router.get("/getNotAssignedPackages", (req, res) => {
-  const getPack = `SELECT p.id,packageCode, noOfCopies,codeStart,codeEnd,examType || '-' || courseCode ||' '||date as examName,status FROM package as p JOIN exam as
-			e on p.examID = e.id JOIN subject as s ON
-			e.subjectID = s.id JOIN program as pr on pr.id = s.programID
-			WHERE status="Not Assigned"`;
+  // Updated query to include subjectName, examName, center
+  const getPack = `SELECT p.id, p.packageCode, s.subjectName, 
+    (s.subjectName || '-' || e.date || '-' || e.examType) as exam, 
+    p.center, p.noOfCopies
+    FROM package as p 
+    JOIN exam as e on p.examID = e.id 
+    JOIN subject as s ON e.subjectID = s.id 
+    JOIN program as pr on pr.id = s.programID
+    WHERE p.status = "Not Assigned"`;
   const db = connectToDB();
   db.all(getPack, [], (err, rows) => {
     if (err) {
@@ -222,7 +227,7 @@ router.get("/getNotAssignedPackages", (req, res) => {
 });
 
 router.get("/getNotAssignedExamPackages/:id", (req, res) => {
-  const getPack = `SELECT p.id, subjectName, examType || '-' || courseCode || ' ' || date as examName, examType, packageCode, noOfCopies,codeStart,codeEnd FROM package as p JOIN exam as
+  const getPack = `SELECT p.id, subjectName, subjectName || '-' || date || '-' || examType as examName, examType, packageCode, noOfCopies,codeStart,codeEnd FROM package as p JOIN exam as
 			e on p.examID = e.id JOIN subject as s ON
 			e.subjectID = s.id JOIN program as pr on pr.id = s.programID
 			WHERE status="Not Assigned" and e.id= ?`;
@@ -293,7 +298,8 @@ router.get("/getOnePerson/:id", (req, res) => {
 
 router.get("/getOnePackage/:id", (req, res) => {
   const getOnePackage = `
-  SELECT * FROM package 
+  SELECT package.*, package.packageCode, exam.*, subject.*, program.*
+  FROM package 
   JOIN exam ON package.examID = exam.id 
   JOIN subject ON subject.id = exam.subjectID
   JOIN program ON program.id = subject.programID

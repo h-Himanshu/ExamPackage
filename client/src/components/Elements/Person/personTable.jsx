@@ -114,7 +114,7 @@ class PersonTable extends React.Component {
           for (let key in element)
             if (key !== "id")
               element[key] = (
-                <Link key={index} to={`/admin/assign-package/${id}`}>
+                <Link key={index} to={`/admin/assign-package/${this.props.id}/${id}`}>
                   {element[key]}
                 </Link>
               );

@@ -392,41 +392,71 @@ router.post(
 //             .status(200)
 //             .json(Object.assign(req.body, { id: result.insertId }));
 //         }
-//       });
+//       );
 //     }
 //   );
 
 router.post("/addAssignment", (req, res) => {
-  const packageIDs = req.body.packages;
+  console.log("[ROUTE] /addAssignment called");
+  let packageIDs = req.body.packages;
+
+  if (!packageIDs || (Array.isArray(packageIDs) && packageIDs.length === 0)) {
+    return res.status(400).json({ error: "No packages provided" });
+  }
+  if (!Array.isArray(packageIDs)) {
+    packageIDs = [packageIDs];
+  }
+
   const db = connectToDB();
+  let completed = 0;
+  let errors = [];
 
-
-  packageIDs.map((packID) => {
-    console.log(req.body.dateOfAssignment)
-    const assignQ = `
-    INSERT INTO assignment(dateOfAssignment, dateOfDeadline, packageID, personID)
-      VALUES ("${req.body.dateOfAssignment}", "${req.body.dateOfDeadline}", ${packID}, ${req.body.personID});
-    UPDATE package SET status = 'Pending'
-      WHERE id = ${packID};
-    `;
-
-    db.exec(assignQ, function (err) {
-      console.log("Adding Assignment");
-      if (err) {
-        console.error(err.message);
-        throw err;
+  packageIDs.forEach((packID) => {
+    console.log(`[ASSIGNMENT] Attempting insert: dateOfAssignment=${req.body.dateOfAssignment}, dateOfDeadline=${req.body.dateOfDeadline}, packageID=${packID}, personID=${req.body.personID}`);
+    db.run(
+      `INSERT INTO assignment(dateOfAssignment, dateOfDeadline, packageID, personID) VALUES (?, ?, ?, ?)`,
+      [req.body.dateOfAssignment, req.body.dateOfDeadline, packID, req.body.personID],
+      function (err) {
+        if (err) {
+          console.error(`[ASSIGNMENT] Insert error for packageID=${packID}:`, err.message);
+          errors.push({ packID, error: err.message });
+          checkDone();
+          return;
+        }
+        db.run(
+          `UPDATE package SET status = 'Pending' WHERE id = ?`,
+          [packID],
+          function (err2) {
+            if (err2) {
+              console.error(`[PACKAGE] Status update failed for packageID=${packID}:`, err2.message);
+              errors.push({ packID, error: err2.message });
+            } else {
+              console.log(`[PACKAGE] Status updated to 'Pending' for packageID=${packID}, changes=${this.changes}`);
+            }
+            checkDone();
+          }
+        );
       }
-      console.log("Changes:", this.changes);
-    });
+    );
   });
 
-  db.close((err) => {
-    console.log("Closing database connection.");
-    if (err) {
-      console.error(err.message);
+  function checkDone() {
+    completed++;
+    if (completed === packageIDs.length) {
+      db.close((err) => {
+        if (err) {
+          console.error("[DB] Error closing DB:", err.message);
+          errors.push({ dbClose: err.message });
+        }
+        if (errors.length > 0) {
+          console.error("[FINAL] Errors occurred:", errors);
+          return res.status(500).json({ errors });
+        }
+        console.log("[FINAL] All assignments and updates completed successfully.");
+        res.status(200).json({ success: true });
+      });
     }
-    res.status(200).json({ ...req.body, id: this.lastID });
-  });
+  }
 });
 
 // router.post('//', ( req, res ) =>{

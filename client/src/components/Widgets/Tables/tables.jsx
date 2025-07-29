@@ -27,7 +27,7 @@ class MainTable extends React.Component {
     let headings = this.props.headings;
     //tableData are datas to be rendered in tabular format
     let tableData = this.props.tableData;
-    let actions = this.props.actions;
+    let actions = this.props.actions || [];
     let data = {};
     //Manually added first and Last column of Table which is absent in this.props.heading
     let remainingColumns = [
@@ -45,8 +45,9 @@ class MainTable extends React.Component {
     //to make SN first column and Action Last column
     let columns = [remainingColumns[0], ...headings, remainingColumns[1]];
     let rows = tableData.map((datas, index) => {
-      let tempData = {};
-      tempData["sn"] = index + 1;
+  console.log("Row data for action:", datas); // DEBUG: log each row's data
+  let tempData = {};
+  tempData["sn"] = index + 1;
       for (let key in datas) {
         if (key !== "id" && key !== "package" && key !== "subjectID") {
           let link = `/packageHistory/${datas[key]}`;

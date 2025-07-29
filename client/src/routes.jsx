@@ -8,12 +8,13 @@ import Home from "./components/Home/home.jsx";
 
 import AddPackage from "./components/Elements/Package/addpackage.jsx";
 import EditPackage from "./components/Elements/Package/editpackage.jsx";
-import Intermediate from "./components/Elements/Assignment/intermediate.jsx";
+import TeacherTable from "./components/Elements/Assignment/teacherTable.jsx";
+import AssignPackageWrapper from "./components/Elements/Assignment/AssignPackageWrapper.jsx";
 import AssignPackage from "./components/Elements/Assignment/assignPackage.jsx";
 import PackageHome from "./components/Elements/Package/packageHome.jsx";
 // import PackageHistory from "./components/Elements/Package/History/packageModal.js";
 import ReceivePackage from "./components/Elements/Package/receivePackage.jsx";
-
+import AssignPackageHome from "./components/Elements/Package/assignPackageHome.jsx";
 import AddNewExam from "./components/Elements/Exam/addExam.jsx";
 import ExamTable from "./components/Elements/Exam/examTable.jsx";
 import ExamDetails from "./components/Elements/Exam/examDetails.jsx";
@@ -25,7 +26,7 @@ import Subject from "./components/Elements/Subjects/subjectTable.jsx";
 import AddNewSubject from "./components/Elements/Subjects/addSubject.jsx";
 
 import PersonWrapper from "./components/Elements/Person/PersonWrapper.jsx";
-
+import TeacherTableWrapper from "./components/Elements/Assignment/TeacherTableWrapper.jsx";
 import Program from "./components/Elements/Program/programTable.jsx";
 import AddNewProgram from "./components/Elements/Program/addProgram.jsx";
 
@@ -114,13 +115,18 @@ const router = createBrowserRouter([
         element: <EditPackage />
       },
       {
-        path: '/admin/assign-package/:personID',
-        element: <AssignPackage />,
-      },
+        path: '/admin/assign-package/:packageId/:personID',
+        element: <AssignPackageWrapper />,
+      },,
       {
         path: "/admin/intermediate",
-        element: <Intermediate />,
+        element: <AssignPackageHome />,
       },
+      {
+        path: "/admin/assign-teacher/:id",
+        element: <TeacherTableWrapper />,
+      },
+
       {
         path: "/admin/receivePackage/:assignmentID",
         element: <ReceivePackage />,
