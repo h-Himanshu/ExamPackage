@@ -55,12 +55,6 @@ class PendingPackageTable extends React.Component {
       colspan: "2",
       field: "status",
     },
-    {
-      label: "Status Text",
-      text: "Status Text",
-      colspan: "2",
-      field: "statusText",
-    },
   ];
   actions = [
     {

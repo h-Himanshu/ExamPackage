@@ -399,7 +399,8 @@ router.post(
 router.post("/addAssignment", (req, res) => {
   console.log("[ROUTE] /addAssignment called");
   let packageIDs = req.body.packages;
-
+  console.log("jku");
+  
   if (!packageIDs || (Array.isArray(packageIDs) && packageIDs.length === 0)) {
     return res.status(400).json({ error: "No packages provided" });
   }
@@ -411,8 +412,15 @@ router.post("/addAssignment", (req, res) => {
   let completed = 0;
   let errors = [];
 
-  packageIDs.forEach((packID) => {
-    console.log(`[ASSIGNMENT] Attempting insert: dateOfAssignment=${req.body.dateOfAssignment}, dateOfDeadline=${req.body.dateOfDeadline}, packageID=${packID}, personID=${req.body.personID}`);
+  packageIDs.forEach((packCode) => {
+  db.get(`SELECT id FROM package WHERE packageCode = ?`, [packCode], function(err, row) {
+    if (err || !row) {
+      console.error(`[ASSIGNMENT] No package found for packageCode=${packCode}`);
+      errors.push({ packCode, error: "No package found" });
+      checkDone();
+      return;
+    }
+    const packID = row.id;
     db.run(
       `INSERT INTO assignment(dateOfAssignment, dateOfDeadline, packageID, personID) VALUES (?, ?, ?, ?)`,
       [req.body.dateOfAssignment, req.body.dateOfDeadline, packID, req.body.personID],
@@ -439,6 +447,7 @@ router.post("/addAssignment", (req, res) => {
       }
     );
   });
+});
 
   function checkDone() {
     completed++;
