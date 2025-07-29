@@ -5,6 +5,11 @@ import Table from "../../Widgets/Tables/tables.jsx";
 class PackageTable extends React.Component {
   sortingOnlyList = ["Status"];
   headings = [
+     {
+      label: "Package Code",
+      sort: "asc",
+      field: "packageCode",
+    },
     {
       label: "Subject Name",
       sort: "asc",
@@ -29,11 +34,7 @@ class PackageTable extends React.Component {
       sort: "asc",
       field: "examType",
     },
-    {
-      label: "Package Code",
-      sort: "asc",
-      field: "packageCode",
-    },
+   
     {
       label: "No Of Copies",
       sort: "asc",

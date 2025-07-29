@@ -27,12 +27,12 @@ const FormFields = props => {
 
   const showLabel = (required, labelText) => {
     return required ? (
-      <label class="col-sm-4 col-form-label">
+      <label className="col-sm-4 col-form-label">
         {labelText}
         <span style={{ color: "red", fontSize: "1.2rem" }}>*</span>
       </label>
     ) : (
-      <label class="col-sm-4 col-form-label">{labelText}</label>
+      <label className="col-sm-4 col-form-label">{labelText}</label>
     );
   };
 
@@ -179,7 +179,7 @@ const FormFields = props => {
       case "select":
         formTemplate = (
           <div className="form-group row">
-            {showLabel(values.required, values.labelText)}
+            {showLabel(values.validation.required, values.labelText)}
             <div className="col-sm-6">
               <div>
 

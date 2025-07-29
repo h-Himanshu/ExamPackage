@@ -65,6 +65,7 @@ CREATE TABLE IF NOT EXISTS "package" (
 	"codeEnd"	TEXT,
 	"examID"	INT,
 	"status"	TEXT NOT NULL DEFAULT 'Not Assigned' CHECK("status" IN ('Not Assigned', 'Pending', 'Submitted')),
+	"center" TEXT,
 	PRIMARY KEY("id" AUTOINCREMENT),
 	FOREIGN KEY("examID") REFERENCES "exam"("id")
 );

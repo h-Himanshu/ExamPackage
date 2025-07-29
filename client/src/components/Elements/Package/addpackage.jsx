@@ -85,6 +85,7 @@ class AddNewPackage extends Component {
           name: "lastCode_input",
           type: "text",
           placeholder: "Enter Last Code of Code Range",
+          readOnly: true, // Make field non-editable
         },
         validation: {
           required: false,
@@ -172,6 +173,22 @@ class AddNewPackage extends Component {
           link: "/admin/add-new-exam",
         },
       },
+      center: {
+        element: "select",
+        value: "",
+        label: true,
+        labelText: "Center",
+        config: {
+          name: "center",
+          options: [], // Options will be populated dynamically
+        },
+        validation: {
+          required: true,
+        },
+        valid: true,
+        touched: false,
+        validationText: "",
+      },
     },
     posted: false,
     errorOnSubmission: false,
@@ -180,6 +197,7 @@ class AddNewPackage extends Component {
     examData: [],
     programData: [],
     subjectData: [],
+    collegeData: [],
   };
 
   loadProgramOptions = async () => {
@@ -187,6 +205,7 @@ class AddNewPackage extends Component {
     let { level } = this.state.formData;
 
     let levelValue = level.value;
+    console.log("Program Data:", programData);
     let filteredProgramData = programData.filter((item) => {
       return item["academicDegree"] === levelValue;
     });
@@ -335,6 +354,7 @@ class AddNewPackage extends Component {
     let programData = [];
     let subjectData = [];
     let examData = [];
+    let collegeData = [];
     await fetch("/API/query/getProgramList")
       .then((res) => res.json())
       .then((json) => {
@@ -351,16 +371,23 @@ class AddNewPackage extends Component {
       .then((json) => {
         examData = json;
       });
+    await fetch("/API/query/getCollegeList")
+      .then((res) => res.json())
+      .then((json) => {
+        collegeData = json;
+      });
 
     // Set options for each dropdown immediately after fetching
     const programOptions = programData.map((prog) => ({ val: prog.programName, text: prog.programName }));
     const subjectOptions = subjectData.map((subj) => ({ val: subj.id, text: `${subj.subjectName}  (${subj.courseCode})` }));
     const examOptions = examData.map((exam) => ({ val: exam.id, text: `${exam.examType}-${exam.date}` }));
+    const collegeOptions = collegeData.map((college) => ({ val: college.collegeName, text: college.collegeName }));
 
     this.setState({
       programData,
       subjectData,
       examData,
+      collegeData, // Added collegeData to the state
       formData: {
         ...this.state.formData,
         programID: {
@@ -382,6 +409,13 @@ class AddNewPackage extends Component {
           config: {
             ...this.state.formData.examID.config,
             options: examOptions,
+          },
+        },
+        center: {
+          ...this.state.formData.center,
+          config: {
+            ...this.state.formData.center.config,
+            options: collegeOptions,
           },
         },
       },
@@ -430,12 +464,24 @@ class AddNewPackage extends Component {
       this.loadSubjectOptions();
     } else if (id === "subjectID") {
       this.loadExamOptions();
+    } else if (id === "codeStart" || id === "noOfCopies") {
+      const startCode = parseInt(newState.codeStart.value) || 0;
+      const noOfCopies = parseInt(newState.noOfCopies.value) || 0;
+      const lastCode = startCode + noOfCopies;
+
+      this.setState({
+        formData: {
+          ...newState,
+          codeEnd: {
+            ...newState.codeEnd,
+            value: lastCode.toString(),
+          },
+        },
+      });
     }
   };
 
   submitForm = (event) => {
-    // let buttonID = event.target.id;
-    // let redirectLink = ''
     event.persist();
     let dataToSubmit = {};
     console.log(dataToSubmit);
@@ -444,7 +490,7 @@ class AddNewPackage extends Component {
       dataToSubmit[key] = this.state.formData[key].value;
       console.log(dataToSubmit[key]);
       const state = this.state;
-      //0 check for dropdown
+      // Validation for empty fields
       if (
         dataToSubmit[key].toString() === null ||
         dataToSubmit[key].toString().match(/^ *$/) !== null
@@ -463,10 +509,11 @@ class AddNewPackage extends Component {
     }
 
     console.log(dataToSubmit);
+    console.log('Center value:', dataToSubmit.center);
 
     let url = `/API/query/addPackage`;
     let methodType = "POST";
-    //URL for update route
+    // URL for update route
     const packageID = this.props.match?.params.packageID;
     if (packageID !== undefined) {
       url = `/API/query/editPackage/${packageID}`;

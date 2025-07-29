@@ -2,12 +2,18 @@ import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import "./packages.css";
+import BreadcrumSection from "../../Widgets/Breadcrumb/breadcrumb.jsx";
 
 const EditPackage = () => {
   const { packageID } = useParams();
   const navigate = useNavigate();
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(true);
+
+  const breadCrumbItems = [
+    { text: "Packages", link: "/admin/packages" },
+    { text: "Edit Package", link: "" },
+  ];
 
   const fetchStatus = async () => {
     try {
@@ -130,6 +136,7 @@ const EditPackage = () => {
         maxWidth: 400, 
         width: '100%' 
       }}>
+        <BreadcrumSection breadcrumbItems={breadCrumbItems} />
         <h2 style={{ 
           color: '#1a365d', 
           marginBottom: '2rem', 

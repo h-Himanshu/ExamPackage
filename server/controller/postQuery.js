@@ -167,6 +167,7 @@ router.post(
     check("noOfCopies").exists().isNumeric(),
     check("codeStart").exists().not().isEmpty(),
     check("codeEnd").exists().not().isEmpty(),
+    check("center").exists().not().isEmpty(),
   ],
   (req, res) => {
     const errors = validationResult(req);
@@ -174,8 +175,21 @@ router.post(
       return res.status(422).json({ errors: errors.array() });
     }
     const status = "Not assigned";
-    const postNewPack = `INSERT INTO package(id, packageCode, noOfCopies, codeStart, codeEnd, examID, status) VALUES (?,?,?,?,?,?,?)`;
+    const postNewPack = `INSERT INTO package(id, packageCode, noOfCopies, codeStart, codeEnd, examID, status, center) VALUES (?,?,?,?,?,?,?,?)`;
     const db = connectToDB();
+
+    console.log('Request body:', req.body);
+    console.log('SQL Query:', postNewPack);
+    console.log('SQL Parameters:', [
+      null,
+      req.body.packageCode,
+      req.body.noOfCopies,
+      req.body.codeStart,
+      req.body.codeEnd,
+      req.body.examID,
+      "Not Assigned",
+      req.body.center
+    ]);
 
     db.run(
       postNewPack,
@@ -187,6 +201,7 @@ router.post(
         req.body.codeEnd,
         req.body.examID,
         "Not Assigned",
+        req.body.center, 
       ],
       function (err) {
         console.log("Adding Package");
@@ -428,7 +443,8 @@ router.post("/addAssignment", (req, res) => {
 //       return [
 //         null,
 //         req.body.dateOfAssignment,
-//         req.body.dateOfDeadline,
+//         req.body.dateOfSubmission,
+//         req.body.noOfPackets,
 //         element,
 //         req.body.personID,
 //       ];
