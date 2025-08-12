@@ -116,7 +116,7 @@ export default function ButtonAppBar() {
                 Package
               </Typography>
             </Link>
-            <Link to="/admin/intermediate">
+            <Link to="/admin/Person">
               {" "}
               <Typography
                 variant="h8"

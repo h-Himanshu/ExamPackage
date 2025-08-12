@@ -41,13 +41,12 @@ import Teacher from "./pages/teacher/index.jsx"
 import adbs from "ad-bs-converter";
 
 
-const loader = async ( {params} ) =>{
+const loader = async ({ params }) => {
   const teacherID = params.teacherID
-  const result = await fetch( `/API/query/getPersonSpecificPackage/${teacherID}`)
-  if( result.ok )
-  {
+  const result = await fetch(`/API/query/getPersonSpecificPackage/${teacherID}`)
+  if (result.ok) {
     const jsonResult = await result.json();
-    const parseDate = (str)=>{
+    const parseDate = (str) => {
       //Convert to english
       const englishDate = adbs.bs2ad(str);
       return new Date(englishDate.year, englishDate.month - 1, englishDate.day);
@@ -55,35 +54,35 @@ const loader = async ( {params} ) =>{
     const findDateDifference = (myDate) => {
       const now = new Date();
       now.setHours(0, 0, 0);
-    // Discard the time and time-zone information.
+      // Discard the time and time-zone information.
       const utc1 = Date.UTC(
-      myDate.getFullYear(),
-      myDate.getMonth(),
-      myDate.getDate()
-    );
-    const utc2 = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
-    return Math.round((utc1 - utc2) / (1000 * 60 * 60 * 24));
-  }
-  
-  jsonResult.forEach( ( element ) =>{
-    const myDate = parseDate( 
-      element["dateOfDeadline"].split("T")[0].replaceAll("-", "/")
+        myDate.getFullYear(),
+        myDate.getMonth(),
+        myDate.getDate()
+      );
+      const utc2 = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+      return Math.round((utc1 - utc2) / (1000 * 60 * 60 * 24));
+    }
+
+    jsonResult.forEach((element) => {
+      const myDate = parseDate(
+        element["dateOfDeadline"].split("T")[0].replaceAll("-", "/")
       )
-      const diff = findDateDifference(myDate );
+      const diff = findDateDifference(myDate);
       element["Overdue"] = { isOverdue: diff < 0, days: Math.abs(diff) };
       element["status"] = diff < 0 ? "Overdue" : "Pending";
       element["dateOfDeadline"] = element["dateOfDeadline"].split("T")[0];
       element["dateOfAssignment"] = element["dateOfAssignment"].split("T")[0];
-      
+
     })
     return jsonResult
   }
-  return null  
+  return null
 }
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Login/>
+    element: <Login />
   },
   {
     path: '/login',
@@ -117,7 +116,7 @@ const router = createBrowserRouter([
       {
         path: '/admin/assign-package/:packageId/:personID',
         element: <AssignPackageWrapper />,
-      },,
+      }, ,
       {
         path: "/admin/intermediate",
         element: <AssignPackageHome />,
@@ -190,6 +189,10 @@ const router = createBrowserRouter([
       {
         path: '/admin/programs',
         element: <Program />
+      },
+      {
+        path: '/admin/person',
+        element: <TeacherTable />
       },
       {
         path: '/admin/session',
