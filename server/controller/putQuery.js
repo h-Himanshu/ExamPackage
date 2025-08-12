@@ -8,19 +8,18 @@ const router = express.Router();
 
 router.put("/receivePackage", (req, res) => {
   const assID = req.body.id;
+  const voucherNo = req.body.voucherNo;
   const updateSubmission = `
-  UPDATE assignment SET dateOfSubmission= "${req.body.dateOfSubmission}" WHERE id=${assID};
-  
-  UPDATE package SET status= "Submitted" 	
-    WHERE package.id = (SELECT package.id FROM package JOIN assignment 
-                          ON assignment.packageID= package.id AND assignment.id = ${assID})`;
+    UPDATE assignment SET dateOfSubmission= "${req.body.dateOfSubmission}", voucherNo = "${voucherNo}" WHERE id=${assID};
+    UPDATE package SET status= "Submitted" 
+      WHERE package.id = (SELECT package.id FROM package JOIN assignment 
+                            ON assignment.packageID= package.id AND assignment.id = ${assID})`;
 
   const db = connectToDB();
   db.exec(updateSubmission, function (err) {
     console.log("Updating Package");
     if (err) {
       console.error(err.message);
-
       throw err;
     }
     console.log("Changes:", this.changes);

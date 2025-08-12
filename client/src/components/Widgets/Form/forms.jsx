@@ -38,7 +38,7 @@ const FormFields = props => {
 
   const changeHandler = (event, id) => {
     const newState = props.formData;
-    console.log(id);
+    // console.log(id);
     var re = /^[0-9]+$/;
     if (re.test(id)) {
       newState.packages.childs[id].value = event.target.value;
@@ -90,6 +90,10 @@ const FormFields = props => {
     newState[id].valid = validateData[0];
     newState[id].validationMessage = validateData[1];
     props.change(newState, id);
+    // If this is the dateOfSubmission field and a handler is provided, call it
+    if (id === 'dateOfSubmission' && typeof props.onDateOfSubmissionChange === 'function') {
+      props.onDateOfSubmissionChange(date);
+    }
   };
 
   const setValues = (values, id) => {
@@ -165,7 +169,7 @@ const FormFields = props => {
                 // required={values.required}
                 className="form-control"
                 {...values.config}
-                value={values.value}
+                value={values.value == null ? "" : values.value}
                 onChange={event => changeHandler(event, data.id)}
               />
               {!values.valid ? (
@@ -328,7 +332,6 @@ const FormFields = props => {
         type="reset"
         id="saveandcontinue"
         onClick={event => {
-          navigate(-1)
           props.submitForm(event)}}
         >
         Save and Continue

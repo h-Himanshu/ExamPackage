@@ -74,6 +74,7 @@ CREATE TABLE IF NOT EXISTS "assignment" (
 	"dateOfAssignment"	TEXT,
 	"dateOfSubmission"	TEXT,
 	"dateOfDeadline"	TEXT,
+	"voucherNo"	TEXT NOT NULL,
 	"packageID"	INTEGER UNIQUE,
 	"personID"	INT,
 	FOREIGN KEY("packageID") REFERENCES "package"("id"),

@@ -1,3 +1,8 @@
+// Utility function to convert Nepali digits to English digits
+function toEnglishDigits(str) {
+  const nepToEng = { '०': '0', '१': '1', '२': '2', '३': '3', '४': '4', '५': '5', '६': '6', '७': '7', '८': '8', '९': '9' };
+  return String(str).replace(/[०-९]/g, d => nepToEng[d]);
+}
 import { Component } from "react";
 import { Navigate } from "react-router-dom";
 import { calendarFunctions } from "../../Widgets/jquery.nepaliDatePicker";
@@ -141,13 +146,47 @@ class ReceivePackage extends Component {
         touched: false,
         validationText: "",
       },
+
+      voucherNo: {
+        element: "input",
+        value: "",
+        label: true,
+        labelText: "Voucher No.",
+        config: {
+          name: "voucherNo_input",
+          type: "text",
+          placeholder: "Enter Voucher Number",
+        },
+        validation: {
+          required: true,
+        },
+        valid: true,
+        touched: false,
+        validationText: "",
+      },
     },
   };
 
   //This methods will be called from form.js to set value of formElement in state of this component
   updateForm = (newState) => {
+   
     this.setState({
       formData: newState,
+    });
+  };
+
+  handleDateOfSubmissionChange = (value) => {
+    // Update only the dateOfSubmission field in formData
+    this.setState(prevState => {
+      const updatedFormData = { ...prevState.formData };
+      updatedFormData.dateOfSubmission = {
+        ...updatedFormData.dateOfSubmission,
+        value: value
+      };
+      return { formData: updatedFormData };
+    }, () => {
+      // After updating, recalculate the difference
+      this.setDifference();
     });
   };
 
@@ -193,8 +232,9 @@ class ReceivePackage extends Component {
   };
 
   parseDate(str) {
-    //Convert to english
-    const englishDate = adbs.bs2ad(str);
+    // Convert Nepali digits to English before parsing
+    const englishStr = toEnglishDigits(str);
+    const englishDate = adbs.bs2ad(englishStr);
     return new Date(
       englishDate.year,
       englishDate.month - 1,
@@ -285,8 +325,14 @@ class ReceivePackage extends Component {
   handleReceive = () => {
     let assignmentID = this.extractNumberFromURL(window.location);
     let params = { assignmentID };
+    // Check if voucher number is empty
+    if (!this.state.formData.voucherNo.value || this.state.formData.voucherNo.value.trim() === "") {
+      alert("Voucher Number is required for submission.");
+      return;
+    }
     let dataToSubmit = {};
     dataToSubmit["id"] = params.assignmentID;
+    dataToSubmit["voucherNo"] = this.state.formData.voucherNo.value;
     if (
       this.state.formData.dateOfSubmission.value === "" ||
       this.state.formData.dateOfSubmission.value === null
@@ -335,7 +381,7 @@ class ReceivePackage extends Component {
     let submissionDate = this.parseDate(dateOfSubmission.value);
     console.log(deadlineDate, submissionDate);
     dueDay.value = Math.round(
-      (deadlineDate - submissionDate) / (1000 * 60 * 60 * 24)
+      (-(deadlineDate - submissionDate)) / (1000 * 60 * 60 * 24)
     );
     this.setState({
       dueDay,
@@ -352,6 +398,7 @@ class ReceivePackage extends Component {
           change={(newState) => this.updateForm(newState)}
           submitForm={() => this.handleReceive()}
           setDifference={() => this.setDifference()}
+          onDateOfSubmissionChange={this.handleDateOfSubmissionChange}
         />
       </div>
     );

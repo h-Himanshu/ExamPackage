@@ -1,27 +1,36 @@
+
 import React, { Component } from "react";
 import $ from "jquery";
 import "../jquery.nepaliDatePicker";
 import { calendarFunctions } from "../jquery.nepaliDatePicker";
 
 export class NepaliDatePicker extends Component {
-  componentDidMount() {
-    console.log(calendarFunctions.getNepaliNumber(125));
-    this.$el = $(this.el);
-    if (this.props.date === "" || this.props.date === null) {
-      console.log("EMPTY");
-      var currentDate = new Date();
-      var currentNepaliDate = calendarFunctions.getBsDateByAdDate(
+  constructor(props) {
+    super(props);
+    let defaultNepaliDate = "";
+    if (props.date === "" || props.date == null) {
+      const currentDate = new Date();
+      const currentNepaliDate = calendarFunctions.getBsDateByAdDate(
         currentDate.getFullYear(),
         currentDate.getMonth() + 1,
         currentDate.getDate()
       );
-      var formatedNepaliDate = calendarFunctions.bsDateFormat(
+      defaultNepaliDate = calendarFunctions.bsDateFormat(
         "%y/%m/%d",
         currentNepaliDate.bsYear,
         currentNepaliDate.bsMonth,
         currentNepaliDate.bsDate
       );
-      this.$el.val(formatedNepaliDate);
+    }
+    this.state = {
+      defaultNepaliDate
+    };
+  }
+
+  componentDidMount() {
+    this.$el = $(this.el);
+    if (this.props.date === "" || this.props.date === null) {
+      this.$el.val(this.state.defaultNepaliDate);
     }
     this.$el.nepaliDatePicker({
       dateFormat: "%y/%m/%d",
@@ -30,6 +39,7 @@ export class NepaliDatePicker extends Component {
     this.handleChange = this.handleChange.bind(this);
     this.$el.on("dateChange", this.handleChange);
   }
+
   handleChange(e) {
     //    console.log(calendarFunctions.getNepaliNumber(125));
     console.log(e.datePickerData.adDate);
@@ -40,11 +50,16 @@ export class NepaliDatePicker extends Component {
     console.log([year, month, day].join("/"));
     this.props.dateChangeHandler(e.datePickerData.formattedDate, this.props.id);
   }
+
   render() {
     return (
       <div>
         <input
-          value={this.props.date}
+          value={
+            this.props.date == null || this.props.date === ""
+              ? this.state.defaultNepaliDate
+              : String(this.props.date)
+          }
           className="date-picker"
           onChange={e => this.handleClick(e)}
           ref={el => (this.el = el)}
