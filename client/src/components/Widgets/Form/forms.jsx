@@ -327,15 +327,19 @@ const FormFields = props => {
     >
       {renderFields()}
 
-       <button
+      <button
         className="btn btn-secondary"
-        type="reset"
+        type="button"
         id="saveandcontinue"
         onClick={event => {
-          props.submitForm(event)}}
-        >
+          const result = props.submitForm(event);
+          if (result) {
+            navigate(-1);
+          }
+        }}
+      >
         Save and Continue
-      </button> 
+      </button>
     </form>
   );
 };

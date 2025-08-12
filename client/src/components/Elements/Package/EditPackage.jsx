@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
 import "./packages.css";
 import BreadcrumSection from "../../Widgets/Breadcrumb/breadcrumb.jsx";
 
@@ -9,6 +8,29 @@ const EditPackage = () => {
   const navigate = useNavigate();
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(true);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const handleDropdownToggle = () => {
+    if (status === "Submitted") setShowDropdown((prev) => !prev);
+  };
+
+  const handleDropdownSelect = (newStatus) => {
+    setShowDropdown(false);
+    handleStatusChange(newStatus);
+  };
+
+  // Close dropdown if clicking outside
+  useEffect(() => {
+    if (!showDropdown) return;
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showDropdown]);
 
   const breadCrumbItems = [
     { text: "Packages", link: "/admin/packages" },
@@ -19,17 +41,17 @@ const EditPackage = () => {
     try {
       console.log('Fetching package status for ID:', packageID);
       const res = await fetch(`/API/query/getOnePackage/${packageID}`);
-      
+
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
         throw new Error(errorData.message || `HTTP error! status: ${res.status}`);
       }
-      
+
       const data = await res.json();
       console.log('Status fetch response:', { status: res.status, data });
-      
+
       const packageData = Array.isArray(data) ? data[0] : data;
-      
+
       if (packageData && packageData.status) {
         console.log('Setting status to:', packageData.status);
         setStatus(packageData.status);
@@ -71,15 +93,15 @@ const EditPackage = () => {
   const fetchLatestStatus = async () => {
     try {
       const res = await fetch(`/API/query/getOnePackage/${packageID}`);
-      
+
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
         throw new Error(errorData.message || `HTTP error! status: ${res.status}`);
       }
-      
+
       const data = await res.json();
       const packageData = Array.isArray(data) ? data[0] : data;
-      
+
       if (packageData && packageData.status) {
         setStatus(packageData.status);
         return packageData.status;
@@ -100,14 +122,14 @@ const EditPackage = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
       });
-      
+
       const responseData = await res.json().catch(() => ({}));
       console.log('Status update response:', { status: res.status, data: responseData });
-      
+
       if (!res.ok) {
         throw new Error(`Server responded with ${res.status}: ${responseData.message || 'Unknown error'}`);
       }
-      
+
       console.log('Fetching latest status after update...');
       await fetchLatestStatus();
       console.log('Status after update:', status);
@@ -119,48 +141,48 @@ const EditPackage = () => {
   };
 
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      background: 'linear-gradient(135deg, #f8fafc 0%, #e0e7ef 100%)', 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center', 
-      fontFamily: 'Roboto, Arial, Helvetica, sans-serif' 
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #f8fafc 0%, #e0e7ef 100%)',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      fontFamily: 'Roboto, Arial, Helvetica, sans-serif'
     }}>
-      <div style={{ 
-        background: '#fff', 
-        boxShadow: '0 6px 24px rgba(60,72,88,0.12)', 
-        borderRadius: '16px', 
-        padding: '2.5rem', 
-        minWidth: 340, 
-        maxWidth: 400, 
-        width: '100%' 
+      <div style={{
+        background: '#fff',
+        boxShadow: '0 6px 24px rgba(60,72,88,0.12)',
+        borderRadius: '16px',
+        padding: '2.5rem',
+        minWidth: 340,
+        maxWidth: 400,
+        width: '100%'
       }}>
         <BreadcrumSection breadcrumbItems={breadCrumbItems} />
-        <h2 style={{ 
-          color: '#1a365d', 
-          marginBottom: '2rem', 
-          letterSpacing: '0.04em', 
-          fontWeight: 700 
+        <h2 style={{
+          color: '#1a365d',
+          marginBottom: '2rem',
+          letterSpacing: '0.04em',
+          fontWeight: 700
         }}>
           Edit Package
         </h2>
-        
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'column', 
-          gap: '1.2rem' 
+
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1.2rem'
         }}>
-          <button 
-            style={{ 
-              background: 'linear-gradient(90deg, #ff5858 0%, #ff0000 100%)', 
-              color: 'white', 
-              padding: '0.75rem 1.5rem', 
-              border: 'none', 
-              borderRadius: '8px', 
-              fontSize: '1rem', 
-              fontWeight: 600, 
-              cursor: 'pointer', 
+          <button
+            style={{
+              background: 'linear-gradient(90deg, #ff5858 0%, #ff0000 100%)',
+              color: 'white',
+              padding: '0.75rem 1.5rem',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '1rem',
+              fontWeight: 600,
+              cursor: 'pointer',
               transition: 'all 0.2s ease-in-out',
               boxShadow: '0 2px 8px rgba(255,88,88,0.2)',
               '&:hover': {
@@ -176,58 +198,69 @@ const EditPackage = () => {
             Delete Package
           </button>
 
-          {loading ? (
-            <button 
-              disabled 
-              style={{ 
-                background: 'gray', 
-                color: 'white', 
-                padding: '0.75rem 1.5rem', 
-                border: 'none', 
-                borderRadius: '8px', 
-                fontSize: '1rem', 
-                fontWeight: 600,
-                opacity: 0.6,
-                cursor: 'not-allowed'
-              }}
-            >
-              Loading...
-            </button>
-          ) : (
-            <button
-              disabled={status !== "Submitted"}
-              style={{ 
-                background: status !== "Submitted" 
-                  ? 'gray'
-                  :'linear-gradient(90deg, #0077b6 0%, #00b4d8 100%)' ,
-                color: 'white', 
-                padding: '0.75rem 1.5rem', 
-                border: 'none', 
-                borderRadius: '8px', 
-                fontSize: '1rem', 
-                fontWeight: 600, 
-                cursor: status === "Submitted" ? 'pointer' : 'not-allowed',
-                opacity: status === "Submitted" ? 1 : 0.7,
-                transition: 'all 0.2s ease-in-out',
-                boxShadow: status === "Submitted" ? '0 2px 8px rgba(0,0,0,0.15)' : 'none',
-                transform: status === "Submitted" ? 'translateY(-1px)' : 'none',
-                '&:hover': {
-                  transform: status === "Submitted" ? 'translateY(-2px)' : 'none',
-                  boxShadow: status === "Submitted" ? '0 4px 12px rgba(0,0,0,0.2)' : 'none'
-                },
-                '&:active': {
-                  transform: status === "Submitted" ? 'translateY(0)' : 'none'
-                }
-              }}
-              onClick={() => handleStatusChange("Scrutinized")}
-            >
-              {status === "Scrutinized" ? "Scrutinized" : "Scrutinize"}
-            </button>
-          )}
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+            {loading ? (
+              <button
+                disabled
+                style={{
+                  background: 'gray',
+                  color: 'white',
+                  padding: '0.75rem 1.5rem',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '1rem',
+                  fontWeight: 600,
+                  opacity: 0.6,
+                  cursor: 'not-allowed'
+                }}
+              >
+                Loading...
+              </button>
+            ) : (
+              <div style={{ position: 'relative', display: 'inline-block' }} ref={dropdownRef}>
+                <button
+                  className="btn btn-primary dropdown-toggle"
+                  type="button"
+                  id="scrutinizeDropdown"
+                  aria-expanded={showDropdown}
+                  disabled={status !== "Submitted"}
+                  style={{
+                    background: status !== "Submitted"
+                      ? 'gray'
+                      : 'linear-gradient(90deg, #0077b6 0%, #00b4d8 100%)',
+                    color: 'white',
+                    padding: '0.75rem 1.5rem',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    fontWeight: 600,
+                    cursor: status === "Submitted" ? 'pointer' : 'not-allowed',
+                    opacity: status === "Submitted" ? 1 : 0.7,
+                    transition: 'all 0.2s ease-in-out',
+                    boxShadow: status === "Submitted" ? '0 2px 8px rgba(0,0,0,0.15)' : 'none',
+                    transform: status === "Submitted" ? 'translateY(-1px)' : 'none',
+                  }}
+                  onClick={handleDropdownToggle}
+                >
+                  {status === "Scrutinized" ? "Scrutinized" : "Scrutinize"}
+                </button>
+                {status === "Submitted" && showDropdown && (
+                  <ul className="dropdown-menu show" aria-labelledby="scrutinizeDropdown" style={{ minWidth: '120px', position: 'absolute', top: '100%', left: 0, zIndex: 1000 }}>
+                    <li>
+                      <button className="dropdown-item" type="button" onClick={() => handleDropdownSelect("Scrutinized")}>Accept</button>
+                    </li>
+                    <li>
+                      <button className="dropdown-item" type="button" onClick={() => handleDropdownSelect("Recheck")}>Reject</button>
+                    </li>
+                  </ul>
+                )}
+              </div>
+            )}
+
+          </div>
         </div>
       </div>
     </div>
   );
-};
-
+}
 export default EditPackage;

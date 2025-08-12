@@ -328,7 +328,7 @@ class ReceivePackage extends Component {
     // Check if voucher number is empty
     if (!this.state.formData.voucherNo.value || this.state.formData.voucherNo.value.trim() === "") {
       alert("Voucher Number is required for submission.");
-      return;
+      return false;
     }
     let dataToSubmit = {};
     dataToSubmit["id"] = params.assignmentID;
@@ -357,7 +357,8 @@ class ReceivePackage extends Component {
     }
     console.log(this.state);
 
-    fetch("/API/query/receivePackage", {
+    // Return a promise so the caller can handle navigation after success
+    return fetch("/API/query/receivePackage", {
       method: "PUT",
       headers: {
         Accept: "application/json",
@@ -370,8 +371,11 @@ class ReceivePackage extends Component {
         this.setState({
           packageReceived: true,
         });
+        return true;
+      } else {
+        return false;
       }
-    });
+    }).catch(() => false);
   };
 
   //Difference between Deadling and Submission Day to calculate Due Day

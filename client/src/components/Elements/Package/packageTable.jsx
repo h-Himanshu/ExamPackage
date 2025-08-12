@@ -17,12 +17,6 @@ class PackageTable extends React.Component {
       grouping: true,
     },
     {
-      label: "Course Code",
-      sort: "asc",
-      field: "courseCode",
-      grouping: true,
-    },
-    {
       label: "Exam",
       text: "Exam",
       sort: "asc",
@@ -41,14 +35,9 @@ class PackageTable extends React.Component {
       field: "noOfCopies",
     },
     {
-      label: "Start Code",
+      label: "Code Range",
       sort: "asc",
-      field: "codeStart",
-    },
-    {
-      label: "End Code",
-      sort: "asc",
-      field: "codeEnd",
+      field: "codeRange",
     },
     // {
     //   label: "Year/Part",
@@ -57,10 +46,27 @@ class PackageTable extends React.Component {
     //   grouping: true,
     // },
     {
+      label: "Name of Examiner",
+      sort: "asc",
+      field: "examinerName",
+      grouping: true,
+    },
+    {
+      label: "Mobile no.",
+      sort: "asc",
+      field: "examinerContact",
+      grouping: true,
+    },
+    {
       label: "Status",
       sort: "asc",
       field: "status",
       grouping: true,
+    },
+    {
+      label: "Submitted On",
+      sort: "asc",
+      field: "dateOfSubmission",
     },
   ];
   actions = [
@@ -123,6 +129,32 @@ class PackageTable extends React.Component {
     }
   };
 
+  // Format all empty fields with a dash
+  formatTableData = (data) => {
+    if (!data) return [];
+    
+    return data.map(item => {
+      const formattedItem = {};
+      
+      // Process each field in the item
+      Object.entries(item).forEach(([key, value]) => {
+        // For dateOfSubmission, apply special formatting
+        if (key === 'dateOfSubmission') {
+          const status = item.status?.toLowerCase();
+          formattedItem[key] = (status === 'submitted' || status === 'scrutinized') && value
+            ? new Date(value).toLocaleDateString()
+            : '—';
+        } 
+        // For all other fields, replace falsy values with dash
+        else {
+          formattedItem[key] = value || '—';
+        }
+      });
+      
+      return formattedItem;
+    });
+  };
+
   componentDidMount() {
     console.log(this.props.initialData);
     if (this.props.initialData) {
@@ -131,13 +163,20 @@ class PackageTable extends React.Component {
       fetch("/API/query/getAllPackages")
         .then((res) => res.json())
         .then((json) => {
-          console.log(json);
-          let categories = utils.createCategories(json, this.headings);
-          this.setState({
-            isLoaded: true,
-            tableData: json,
-            categories: categories,
-          });
+          console.log('API Response:', json);
+          if (json && json.length > 0) {
+            console.log('First package data:', json[0]);
+            // Format the data before setting state
+            const formattedData = this.formatTableData(json);
+            console.log('Formatted data:', formattedData[0]);
+            
+            let categories = utils.createCategories(formattedData, this.headings);
+            this.setState({
+              isLoaded: true,
+              tableData: formattedData,
+              categories: categories,
+            });
+          }
         });
     }
   }

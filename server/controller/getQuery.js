@@ -201,7 +201,7 @@ router.get("/getPackages", (req, res) => {
 router.get("/getNotAssignedPackages", (req, res) => {
   // Updated query to include subjectName, examName, center
   const getPack = `SELECT p.id, p.packageCode, s.subjectName, 
-    (s.subjectName || '-' || e.date || '-' || e.examType) as exam, 
+    (s.subjectName || '-' || e.date) as exam, 
     p.center, p.noOfCopies
     FROM package as p 
     JOIN exam as e on p.examID = e.id 
@@ -227,7 +227,7 @@ router.get("/getNotAssignedPackages", (req, res) => {
 });
 
 router.get("/getNotAssignedExamPackages/:id", (req, res) => {
-  const getPack = `SELECT p.id, subjectName, subjectName || '-' || date || '-' || examType as examName, examType, packageCode, noOfCopies,codeStart,codeEnd FROM package as p JOIN exam as
+  const getPack = `SELECT p.id, subjectName, subjectName || '-' || date as examName, examType, packageCode, noOfCopies, codeStart || ' - ' || codeEnd as codeRange FROM package as p JOIN exam as
 			e on p.examID = e.id JOIN subject as s ON
 			e.subjectID = s.id JOIN program as pr on pr.id = s.programID
 			WHERE status="Not Assigned" and e.id= ?`;
@@ -250,13 +250,21 @@ router.get("/getNotAssignedExamPackages/:id", (req, res) => {
 });
 
 router.get("/getAllPackages", (req, res) => {
-  //   const getPack = `SELECT  pac.id AS package_id, yearPart, subjectName, examType, pac.packageCode, pac.noOfCopies, pac.codeStart, pac.codeEnd FROM package pac INNER JOIN
+  //   const getPack = `SELECT  pac.id AS package_id, yearPart, subjectName, examType, pac.packageCode, pac.noOfCopies, pac.codeStart || ' - ' || pac.codeEnd as codeRange FROM package pac INNER JOIN
   //   (SELECT concat(year,'/',part) as yearPart, ex.id AS exam_id, ex.examType, sub.subjectName FROM subject sub INNER JOIN exam ex ON ex.subjectID = sub.id )
   // AS exam_sub ON exam_sub.exam_id = pac.examID`;
 
-  const getPack = `SELECT   pac.id AS id, subjectName, courseCode, subjectName || '-' || date || '-' || examType as exam, examType, pac.packageCode, pac.noOfCopies, pac.codeStart, pac.codeEnd, pac.status FROM package pac INNER JOIN
-    (SELECT ex.id AS exam_id, ex.date, ex.examType, sub.subjectName, sub.courseCode FROM subject sub INNER JOIN exam ex ON ex.subjectID = sub.id )
-  AS exam_sub ON exam_sub.exam_id = pac.examID`;
+  const getPack = `SELECT   pac.id AS id, subjectName, courseCode, subjectName || '-' || date as exam, examType, 
+    pac.packageCode, pac.noOfCopies, pac.codeStart || ' - ' || pac.codeEnd as codeRange, pac.status,
+    per.fullName as examinerName, per.contact as examinerContact, ass.dateOfSubmission
+    FROM package pac 
+    INNER JOIN (
+      SELECT ex.id AS exam_id, ex.date, ex.examType, sub.subjectName, sub.courseCode 
+      FROM subject sub 
+      INNER JOIN exam ex ON ex.subjectID = sub.id 
+    ) AS exam_sub ON exam_sub.exam_id = pac.examID
+    LEFT JOIN assignment ass ON ass.packageID = pac.id
+    LEFT JOIN person per ON per.id = ass.personID`;
 
   const db = connectToDB();
   db.all(getPack, [], (err, rows) => {
@@ -324,7 +332,7 @@ router.get("/getOnePackage/:id", (req, res) => {
 
 router.get("/getOnePackageByPackageCode/:code", (req, res) => {
   const getOnePackage = `
-  SELECT *, s.subjectName || '-' || e.date || '-' || e.examType as exam FROM package p 
+  SELECT *, s.subjectName || '-' || e.date as exam FROM package p 
 LEFT JOIN exam e on p.examID=e.id 
 LEFT JOIN subject s ON e.subjectID=s.id 
 LEFT JOIN assignment a ON a.packageID=p.id 
