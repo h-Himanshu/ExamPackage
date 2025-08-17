@@ -84,11 +84,10 @@ class AddNewPackage extends Component {
         config: {
           name: "lastCode_input",
           type: "text",
-          placeholder: "Enter Last Code of Code Range",
-          readOnly: true, // Make field non-editable
+          placeholder: "Enter Last Code of Code Range"
         },
         validation: {
-          required: false,
+          required: true,
         },
         valid: true,
         touched: false,
@@ -465,18 +464,9 @@ class AddNewPackage extends Component {
     } else if (id === "subjectID") {
       this.loadExamOptions();
     } else if (id === "codeStart" || id === "noOfCopies") {
-      const startCode = parseInt(newState.codeStart.value) || 0;
-      const noOfCopies = parseInt(newState.noOfCopies.value) || 0;
-      const lastCode = startCode + noOfCopies;
-
+      // Removed auto-calculation of lastCode
       this.setState({
-        formData: {
-          ...newState,
-          codeEnd: {
-            ...newState.codeEnd,
-            value: lastCode.toString(),
-          },
-        },
+        formData: newState
       });
     }
   };

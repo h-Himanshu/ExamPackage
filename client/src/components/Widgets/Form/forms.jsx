@@ -332,6 +332,7 @@ const FormFields = props => {
         type="button"
         id="saveandcontinue"
         onClick={event => {
+          navigate(-1);
           const result = props.submitForm(event);
           if (result) {
             navigate(-1);
