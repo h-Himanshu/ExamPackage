@@ -28,10 +28,17 @@ const buttons = [
     color: "orange",
     icon: faPlus,
   },
+  {
+    text: "View Packages",
+    className: "home-button",
+    color: "rgb(23,100,131)",
+    icon: faEdit,
+    link: "/admin/view-packages",
+  },
 ];
 const breadcrumbItems = [
   {
-    text: "Dashboard",
+    text: "Packages",
     link: "/admin/",
   },
 ];

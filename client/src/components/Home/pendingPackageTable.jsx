@@ -117,7 +117,13 @@ class PendingPackageTable extends React.Component {
           console.log(myDate);
           const diff = this.findDateDifference(myDate);
           element["Overdue"] = { isOverdue: diff < 0, days: Math.abs(diff) };
-          element["status"] = diff < 0 ? "Overdue" : "Pending";
+          // Preserve backend status (e.g., 'Recheck') and enrich display
+          const backendStatus = element["status"];
+          if (backendStatus === "Recheck") {
+            element["status"] = "Recheck";
+          } else {
+            element["status"] = diff < 0 ? "Overdue" : "Pending";
+          }
           element["dateOfDeadline"] = element["dateOfDeadline"].split("T")[0];
           element["dateOfAssignment"] =
           element["dateOfAssignment"].split("T")[0];

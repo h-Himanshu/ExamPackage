@@ -16,7 +16,7 @@ const BreadcrumSection = (props) => {
   return (
     <MDBBreadcrumb>
       <MDBBreadcrumbItem>
-        <Link to="/admin">Home</Link>
+  <Link to="/admin">Home</Link>
       </MDBBreadcrumbItem>
       {breadCrumbItem()}
       {/* <MDBBreadcrumbItem>Home</MDBBreadcrumbItem>

@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 
-//HOC
-import Layout from "./hoc/layout.jsx";
-// Components
 import Home from "./components/Home/home.jsx";
+import Layout from "./hoc/layout.jsx";
 
 import AddPackage from "./components/Elements/Package/addpackage.jsx";
 import EditPackage from "./components/Elements/Package/editpackage.jsx";
 import TeacherTable from "./components/Elements/Assignment/teacherTable.jsx";
 import AssignPackageWrapper from "./components/Elements/Assignment/AssignPackageWrapper.jsx";
 import AssignPackage from "./components/Elements/Assignment/assignPackage.jsx";
-import PackageHome from "./components/Elements/Package/packageHome.jsx";
+import ViewPackage from "./components/Elements/Package/viewPackage.jsx";
 // import PackageHistory from "./components/Elements/Package/History/packageModal.js";
 import ReceivePackage from "./components/Elements/Package/receivePackage.jsx";
-import AssignPackageHome from "./components/Elements/Package/assignPackageHome.jsx";
+import AssignPackageHome from "./components/Elements/Package/assignpackagehome.jsx";
 import AddNewExam from "./components/Elements/Exam/addExam.jsx";
 import ExamTable from "./components/Elements/Exam/examTable.jsx";
 import ExamDetails from "./components/Elements/Exam/examDetails.jsx";
@@ -31,12 +29,14 @@ import Program from "./components/Elements/Program/programTable.jsx";
 import AddNewProgram from "./components/Elements/Program/addProgram.jsx";
 
 import Delete from "./components/Elements/Delete.jsx";
+import PackageDetailWrapper from "./components/Elements/Package/PackageDetailWrapper.jsx";
 
 import Test from "./components/Widgets/test.jsx";
 import Login from "./components/Elements/Login/login.jsx";
 import Session from "./components/Elements/Session/Session.jsx";
 
 import Teacher from "./pages/teacher/index.jsx"
+import Dashboard from "./components/Dashboard/Dashboard.jsx"
 
 import adbs from "ad-bs-converter";
 
@@ -98,13 +98,27 @@ const router = createBrowserRouter([
     element: <Layout />,
     children: [
       {
-        path: '/admin',
-        element: <Home />
+  index: true,
+  element: <Navigate to="/admin/dashboard" replace />
+      },
+      {
+  path: 'dashboard',
+        element: <Dashboard />
       },
       {
         path: '/admin/packages',
-        element: <PackageHome />
+        element: <>
+          <Home />
+        </>
       },
+
+      {
+        path: '/admin/view-packages',
+        element: <>
+          <ViewPackage />
+        </>
+      },
+
       {
         path: '/admin/add-new-package',
         element: <AddPackage />
@@ -116,7 +130,11 @@ const router = createBrowserRouter([
       {
         path: '/admin/assign-package/:packageId/:personID',
         element: <AssignPackageWrapper />,
-      }, ,
+      },
+      {
+        path: '/admin/packages/:packageId',
+        element: <PackageDetailWrapper />,
+      },
       {
         path: "/admin/intermediate",
         element: <AssignPackageHome />,

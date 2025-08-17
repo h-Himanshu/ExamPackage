@@ -1,0 +1,69 @@
+.dashboard-icon {
+  display: block;
+  font-size: 2.2rem;
+  margin-bottom: 0.3rem;
+  color: #3949ab;
+  line-height: 1;
+}
+
+.dashboard-stats {
+  padding: 2.5rem 1rem 1rem 1rem;
+  background: #f7f7f7;
+  min-height: 100vh;
+}
+
+.dashboard-stats h2 {
+  text-align: center;
+  font-size: 2.1rem;
+  font-weight: 600;
+  margin-bottom: 2.2rem;
+  color: #1a237e;
+  letter-spacing: 0.5px;
+  font-family: 'Georgia', 'Times New Roman', Times, serif;
+}
+
+.dashboard-cards {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.dashboard-card {
+  background: #fff;
+  border-radius: 10px;
+  border: 1.5px solid #c5cae9;
+  box-shadow: 0 2px 8px rgba(44,62,80,0.06);
+  padding: 1.5rem 2rem 1.2rem 2rem;
+  min-width: 200px;
+  max-width: 240px;
+  text-align: center;
+  transition: box-shadow 0.2s, border-color 0.2s;
+  font-family: 'Georgia', 'Times New Roman', Times, serif;
+}
+.dashboard-card h3 {
+  margin-bottom: 0.5rem;
+  color: #3949ab;
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  font-family: 'Georgia', 'Times New Roman', Times, serif;
+}
+.dashboard-card p {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin: 0;
+  color: #263238;
+  letter-spacing: 0.5px;
+  font-family: 'Georgia', 'Times New Roman', Times, serif;
+}
+
+@media (max-width: 900px) {
+  .dashboard-cards {
+    gap: 1rem;
+  }
+  .dashboard-card {
+    min-width: 140px;
+    padding: 1rem 0.7rem 0.7rem 0.7rem;
+  }
+}

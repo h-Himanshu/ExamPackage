@@ -75,6 +75,7 @@ CREATE TABLE IF NOT EXISTS "assignment" (
 	"dateOfDeadline"	TEXT,
 	"packageID"	INTEGER UNIQUE,
 	"personID"	INT,
+	"resubmissionDate" TEXT,
 	FOREIGN KEY("packageID") REFERENCES "package"("id"),
 	PRIMARY KEY("id" AUTOINCREMENT),
 	FOREIGN KEY("personID") REFERENCES "person"("id")

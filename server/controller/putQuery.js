@@ -6,31 +6,58 @@ const router = express.Router();
 //   if (err) throw err;
 //   console.log("Database Connected");
 
+
 router.put("/receivePackage", (req, res) => {
   const assID = req.body.id;
   const voucherNo = req.body.voucherNo;
-  const updateSubmission = `
-    UPDATE assignment SET dateOfSubmission= "${req.body.dateOfSubmission}", voucherNo = "${voucherNo}" WHERE id=${assID};
-    UPDATE package SET status= "Submitted" 
-      WHERE package.id = (SELECT package.id FROM package JOIN assignment 
-                            ON assignment.packageID= package.id AND assignment.id = ${assID})`;
-
+  // Accept either explicit resubmissionDate or dateOfSubmission from client
+  const submittedDate = req.body.resubmissionDate || req.body.dateOfSubmission;
   const db = connectToDB();
-  db.exec(updateSubmission, function (err) {
-    console.log("Updating Package");
-    if (err) {
-      console.error(err.message);
-      throw err;
-    }
-    console.log("Changes:", this.changes);
-  });
+  console.log("receivePackage body:", req.body);
 
-  db.close((err) => {
-    console.log("Closing database connection.");
+  // First, check if the package status is 'Recheck'
+  const checkStatusQuery = `SELECT package.status FROM package JOIN assignment ON assignment.packageID = package.id WHERE assignment.id = ?`;
+  db.get(checkStatusQuery, [assID], (err, row) => {
     if (err) {
-      console.error(err.message);
+      db.close();
+      return res.status(500).send("Error checking package status");
     }
-    res.status(200).json({ ...req.body, id: this.lastID });
+    const isRecheck = row && typeof row.status === "string" && row.status.toLowerCase() === "recheck";
+    let updateSubmission;
+    if (isRecheck) {
+      // If status is Recheck, DO NOT change original dateOfSubmission; only set resubmissionDate and voucherNo
+      if (!submittedDate) {
+        db.close();
+        return res.status(400).send("Resubmission date is required");
+      }
+      updateSubmission = `
+        UPDATE assignment SET resubmissionDate = "${submittedDate}", voucherNo = "${voucherNo}" WHERE id = ${assID};
+        UPDATE package SET status = "Submitted" 
+          WHERE package.id = (SELECT package.id FROM package JOIN assignment 
+                                ON assignment.packageID = package.id AND assignment.id = ${assID});
+      `;
+    } else {
+      // Normal submission: set dateOfSubmission and voucherNo
+      updateSubmission = `
+        UPDATE assignment SET dateOfSubmission = "${submittedDate}", voucherNo = "${voucherNo}" WHERE id = ${assID};
+        UPDATE package SET status = "Submitted" 
+          WHERE package.id = (SELECT package.id FROM package JOIN assignment 
+                                ON assignment.packageID = package.id AND assignment.id = ${assID});
+      `;
+    }
+    console.log("receivePackage SQL to exec:", updateSubmission);
+    db.exec(updateSubmission, function (err) {
+      if (err) {
+        db.close();
+        return res.status(500).send("Error updating submission");
+      }
+      db.close((err) => {
+        if (err) {
+          console.error(err.message);
+        }
+        res.status(200).json({ ...req.body, id: assID });
+      });
+    });
   });
 });
 

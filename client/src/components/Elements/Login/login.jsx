@@ -21,10 +21,10 @@ const Login = () => {
       },
       body: JSON.stringify(loginCredential),
     }).then((res) => {
-      if (res.ok) {
+    if (res.ok) {
         console.log(res);
         if (loginCredential.username == "admin") {
-          navigation("/admin");
+      navigation("/admin/dashboard");
         } else {
           navigation(`/teacher/${loginCredential.username}`);
         }

@@ -61,6 +61,15 @@ export default function ButtonAppBar() {
           </div>
 
           <Stack direction="row" spacing={2} sx={{ ml: "auto" }}>
+            <Link to="/admin/dashboard">
+              <Typography
+                variant="h8"
+                component="div"
+                sx={{ flexGrow: 0.5, color: "white" }}
+              >
+                Dashboard
+              </Typography>
+            </Link>
             <Link to="/admin/session">
               <Typography
                 variant="h8"
@@ -117,13 +126,12 @@ export default function ButtonAppBar() {
               </Typography>
             </Link>
             <Link to="/admin/Person">
-              {" "}
               <Typography
                 variant="h8"
                 component="div"
                 sx={{ flexGrow: 0.5, color: "white" }}
               >
-                Person
+                Expert
               </Typography>
             </Link>
             <Button

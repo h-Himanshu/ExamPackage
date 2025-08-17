@@ -9,9 +9,17 @@ class Util extends Component {
       let groupByKeyWord = header.field;
       categories[groupByKeyWord] = [];
       for (let item of tableData) {
-        //console.log("efse", item)
-        if (!categories[groupByKeyWord].includes(item[groupByKeyWord])) {
-          categories[groupByKeyWord].push(item[groupByKeyWord]);
+        // Normalize potential React elements or complex values to strings
+        const raw = item[groupByKeyWord];
+        const normalized = (raw === null || raw === undefined)
+          ? ""
+          : (typeof raw === "string" || typeof raw === "number")
+            ? String(raw)
+            : (raw && raw.props && raw.props.children)
+              ? String(raw.props.children)
+              : String(raw);
+        if (!categories[groupByKeyWord].includes(normalized)) {
+          categories[groupByKeyWord].push(normalized);
         }
       }
     }

@@ -50,10 +50,19 @@ class MainTable extends React.Component {
   tempData["sn"] = index + 1;
       for (let key in datas) {
         if (key !== "id" && key !== "package" && key !== "subjectID") {
-          let link = `/packageHistory/${datas[key]}`;
-          key === "packageCode"
-            ? (tempData[key] = <Link to={link}>{datas[key]}</Link>)
-            : (tempData[key] = datas[key]);
+          // If the value is already a React element (e.g., a Link), use it directly to avoid nested <a>
+          if (React.isValidElement(datas[key])) {
+            tempData[key] = datas[key];
+            continue;
+          }
+
+          if (key === "packageCode") {
+            const val = datas[key];
+            const link = `/packageHistory/${val}`;
+            tempData[key] = <Link to={link}>{val}</Link>;
+          } else {
+            tempData[key] = datas[key];
+          }
         }
       }
       //Adding Icon/Button in Action Column in every row

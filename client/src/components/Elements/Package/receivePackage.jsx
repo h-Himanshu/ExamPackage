@@ -19,6 +19,7 @@ function toNepaliDigits(str) {
 class ReceivePackage extends Component {
   state = {
     packageReceived: false,
+  packageStatus: null,
     formData: {
       packageCode: {
         element: "input",
@@ -164,6 +165,24 @@ class ReceivePackage extends Component {
         touched: false,
         validationText: "",
       },
+      // This field will be shown/used only when status is Recheck
+      resubmissionDate: {
+        element: "hidden",
+        value: null,
+        label: true,
+        labelText: "Resubmission Date",
+        config: {
+          name: "resubmissionDay_input",
+          type: "date",
+          placeholder: "Enter Resubmission Day",
+        },
+        validation: {
+          required: false,
+        },
+        valid: true,
+        touched: false,
+        validationText: "",
+      },
     },
   };
 
@@ -181,6 +200,21 @@ class ReceivePackage extends Component {
       const updatedFormData = { ...prevState.formData };
       updatedFormData.dateOfSubmission = {
         ...updatedFormData.dateOfSubmission,
+        value: value
+      };
+      return { formData: updatedFormData };
+    }, () => {
+      // After updating, recalculate the difference
+      this.setDifference();
+    });
+  };
+
+  handleResubmissionDateChange = (value) => {
+    // Update only the resubmissionDate field in formData
+    this.setState(prevState => {
+      const updatedFormData = { ...prevState.formData };
+      updatedFormData.resubmissionDate = {
+        ...updatedFormData.resubmissionDate,
         value: value
       };
       return { formData: updatedFormData };
@@ -277,8 +311,40 @@ class ReceivePackage extends Component {
         let { formData } = this.state;
         for (let key of Object.keys(json[0])) {
           console.log(key, json[0][key]);
+          if (formData[key]) {
+            formData[key].value = json[0][key];
+          }
+        }
 
-          formData[key].value = json[0][key];
+  const rawStatus = json[0] && json[0].status ? json[0].status : null;
+  const statusNorm = rawStatus ? String(rawStatus).trim().toLowerCase() : null;
+  const isRecheck = statusNorm === "recheck";
+        // Adjust labels/fields depending on status
+  if (isRecheck) {
+          // Turn submitted date into a simple text field label & keep resubmission date as date-picker
+          formData.dateOfSubmission.element = "input";
+          formData.dateOfSubmission.config = {
+            ...formData.dateOfSubmission.config,
+            type: "text",
+            placeholder: "Enter Submitted Day (YYYY/MM/DD)",
+            disabled: "disabled",
+          };
+          // ensure resubmission date is visible as date picker
+          formData.resubmissionDate.element = "date-picker-jq";
+        } else {
+          // Keep submission as date-picker when not in Recheck
+          formData.dateOfSubmission.element = "date-picker-jq";
+          // remove disabled when switching back to date picker
+          const { disabled, ...restCfg } = formData.dateOfSubmission.config || {};
+          formData.dateOfSubmission.config = {
+            ...restCfg,
+            type: "date",
+            placeholder: "Enter Submission Day",
+          };
+          // Ensure resubmissionDate is cleared when not Recheck
+          formData.resubmissionDate.value = null;
+          // hide resubmissionDate by switching to a no-op element
+          formData.resubmissionDate.element = "hidden";
         }
 
         // formData.dateOfSubmission.value = this.formatEnglishDateToNep(
@@ -289,6 +355,7 @@ class ReceivePackage extends Component {
         );
         this.setState({
           formData: formData,
+          packageStatus: rawStatus,
         }, () => {
           // Convert dateOfAssignment and dateOfDeadline to Nepali digits after setting formData
           this.setState(prevState => ({
@@ -333,26 +400,32 @@ class ReceivePackage extends Component {
     let dataToSubmit = {};
     dataToSubmit["id"] = params.assignmentID;
     dataToSubmit["voucherNo"] = this.state.formData.voucherNo.value;
+    // Choose which date to send based on status
+    const isRecheck = this.state.packageStatus === "Recheck";
+    const chosenDateField = isRecheck ? this.state.formData.resubmissionDate : this.state.formData.dateOfSubmission;
+
     if (
-      this.state.formData.dateOfSubmission.value === "" ||
-      this.state.formData.dateOfSubmission.value === null
+      chosenDateField.value === "" ||
+      chosenDateField.value === null
     ) {
-      const today = new Date();
-      const dd = today.getDate();
-      const mm = today.getMonth() + 1; //Months are zero based
-      const yyyy = today.getFullYear();
-      const nepaliDate = adbs.ad2bs(yyyy + "/" + mm + "/" + dd).en;
-      //Year month day format with  0 padded if mm or dd < 10
-      console.log(nepaliDate);
-      dataToSubmit["dateOfSubmission"] =
-        nepaliDate.year.toString() +
-        "/" +
-        ("0" + nepaliDate.month.toString()).slice(-2) +
-        "/" +
-        ("0" + nepaliDate.day.toString()).slice(-2);
+      if (!isRecheck) {
+        const today = new Date();
+        const dd = today.getDate();
+        const mm = today.getMonth() + 1; //Months are zero based
+        const yyyy = today.getFullYear();
+        const nepaliDate = adbs.ad2bs(yyyy + "/" + mm + "/" + dd).en;
+        //Year month day format with  0 padded if mm or dd < 10
+        console.log(nepaliDate);
+        dataToSubmit["dateOfSubmission"] =
+          nepaliDate.year.toString() +
+          "/" +
+          ("0" + nepaliDate.month.toString()).slice(-2) +
+          "/" +
+          ("0" + nepaliDate.day.toString()).slice(-2);
+      }
     } else {
       dataToSubmit["dateOfSubmission"] = this.formatNepaliDateToEng(
-        this.state.formData.dateOfSubmission.value
+        chosenDateField.value
       );
     }
     console.log(this.state);
@@ -380,20 +453,24 @@ class ReceivePackage extends Component {
 
   //Difference between Deadling and Submission Day to calculate Due Day
   setDifference = () => {
-    let { dateOfDeadline, dateOfSubmission, dueDay } = this.state.formData;
-    let deadlineDate = this.parseDate(dateOfDeadline.value);
-    let submissionDate = this.parseDate(dateOfSubmission.value);
+    let { dateOfDeadline, dateOfSubmission, resubmissionDate, dueDay } = this.state.formData;
+    let deadlineDate = dateOfDeadline.value ? this.parseDate(dateOfDeadline.value) : null;
+    const isRecheck = this.state.packageStatus === "Recheck";
+    const picked = isRecheck ? resubmissionDate.value : dateOfSubmission.value;
+    let submissionDate = picked ? this.parseDate(picked) : null;
     console.log(deadlineDate, submissionDate);
-    dueDay.value = Math.round(
-      (-(deadlineDate - submissionDate)) / (1000 * 60 * 60 * 24)
-    );
+    if (deadlineDate && submissionDate) {
+      dueDay.value = Math.round(
+        (-(deadlineDate - submissionDate)) / (1000 * 60 * 60 * 24)
+      );
+    }
     this.setState({
       dueDay,
     });
   };
   render() {
     if (this.state.packageReceived) {
-      return <Navigate replace to="/admin" />;
+      return <Navigate replace to="/admin/dashboard" />;
     }
     return (
       <div>
@@ -403,6 +480,7 @@ class ReceivePackage extends Component {
           submitForm={() => this.handleReceive()}
           setDifference={() => this.setDifference()}
           onDateOfSubmissionChange={this.handleDateOfSubmissionChange}
+          onResubmissionDateChange={this.handleResubmissionDateChange}
         />
       </div>
     );

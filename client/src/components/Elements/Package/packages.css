@@ -54,3 +54,6 @@ dt
 {
     font-weight: bold;
 }
+.mainTable tbody tr:hover a {
+    color: blue !important;
+}

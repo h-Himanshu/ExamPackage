@@ -5,17 +5,32 @@ const router = express.Router();
 
 router.get("/getPendingPackages", (req, res) => {
 
- const pendingPackagequery = `SELECT assignmentId AS id, packageCode, subjectName, dateOfAssignment, dateOfDeadline,  per.fullName, per.contact, per.email FROM person per INNER JOIN
-		(SELECT id AS assignmentId, dateOfAssignment, dateOfDeadline, subjectName, packageCode, ass.personID AS person_id FROM assignment ass INNER JOIN
-			(SELECT  pac.id AS package_id, subjectName, pac.packageCode FROM package pac INNER JOIN
-				(SELECT ex.id AS exam_id, sub.subjectName FROM subject sub INNER JOIN exam ex ON ex.subjectID = sub.id )
-				AS exam_sub ON exam_sub.exam_id = pac.examID)
-			 AS sep ON sep.package_id = ass.packageID AND ass.dateOfSubmission IS NULL )
-		 AS sepa ON sepa.person_id = per.id ORDER BY dateOfAssignment`
+  const pendingPackagequery = `
+    SELECT 
+      ass.id AS id,
+      pac.packageCode,
+      sub.subjectName,
+      ass.dateOfAssignment,
+      ass.dateOfDeadline,
+      per.fullName,
+      per.contact,
+      per.email,
+      pac.status
+    FROM assignment ass
+    INNER JOIN package pac ON pac.id = ass.packageID
+    INNER JOIN exam ex ON ex.id = pac.examID
+    INNER JOIN subject sub ON sub.id = ex.subjectID
+    INNER JOIN person per ON per.id = ass.personID
+    WHERE 
+      ass.dateOfSubmission IS NULL
+      OR (pac.status = 'Recheck' AND ass.resubmissionDate IS NULL)
+    ORDER BY ass.dateOfAssignment`;
   const db = connectToDB();
+
 
   db.all(pendingPackagequery, [], (err, rows) => {
     if (err) {
+
       res.status(404).send("The data does not exist");
     } else {
       res.status(200).send(JSON.parse(JSON.stringify(rows)));
@@ -30,42 +45,63 @@ router.get("/getPendingPackages", (req, res) => {
   });
 });
 
-router.get( '/getPersonSpecificPackage/:personID', ( req, res ) => {
-  const getPersonSpecificPackage = `SELECT packageCode, subjectName, dateOfAssignment, dateOfDeadline, per.email as email  FROM person per INNER JOIN
-                                  (SELECT id AS assignmentId, dateOfAssignment, dateOfDeadline, subjectName, packageCode, ass.personID AS person_id FROM assignment ass INNER JOIN
-                                    (SELECT  pac.id AS package_id, subjectName, pac.packageCode FROM package pac INNER JOIN
-                                      (SELECT ex.id AS exam_id, sub.subjectName FROM subject sub INNER JOIN exam ex ON ex.subjectID = sub.id )
-                                      AS exam_sub ON exam_sub.exam_id = pac.examID)
-                                    AS sep ON sep.package_id = ass.packageID AND ass.dateOfSubmission IS NULL )
-                                  AS sepa ON sepa.person_id = per.id 
-                                  WHERE email = ?
-                                  ORDER BY dateOfAssignment`
-  
+router.get('/getPersonSpecificPackage/:personID', (req, res) => {
+  const getPersonSpecificPackage = `
+    SELECT 
+      pac.packageCode,
+      sub.subjectName,
+      ass.dateOfAssignment,
+      ass.dateOfDeadline,
+      per.email as email
+    FROM assignment ass
+    INNER JOIN package pac ON pac.id = ass.packageID
+    INNER JOIN exam ex ON ex.id = pac.examID
+    INNER JOIN subject sub ON sub.id = ex.subjectID
+    INNER JOIN person per ON per.id = ass.personID
+    WHERE per.id = ?
+      AND (
+        ass.dateOfSubmission IS NULL OR (pac.status = 'Recheck' AND ass.resubmissionDate IS NULL)
+      )
+    ORDER BY ass.dateOfAssignment`;
+
   const db = connectToDB();
 
-  db.all( getPersonSpecificPackage, [ req.params.personID], ( err, rows ) =>{
-    if( err ) res.status( 404 ).send("The data does not exist");
-    else{
-      res.status(200).send( JSON.parse(JSON.stringify(rows)));
-      console.log( rows )
+  db.all(getPersonSpecificPackage, [req.params.personID], (err, rows) => {
+    if (err) res.status(404).send("The data does not exist");
+    else {
+      res.status(200).send(JSON.parse(JSON.stringify(rows)));
+      console.log(rows)
       console.log("Person Specific Packages sent");
     }
 
   })
-  db.close( err =>{
-    if( err ) console.log(err.message)
+  db.close(err => {
+    if (err) console.log(err.message)
     console.log("Close the database connction")
   })
 })
 router.get("/getPendingExamPackages/:id", (req, res) => {
 
-  const pendingPackagequery = `SELECT assignmentId AS id, packageCode, subjectName, dateOfAssignment, dateOfDeadline,  per.fullName, per.contact, per.email FROM person per INNER JOIN
-		(SELECT id AS assignmentId, dateOfAssignment, dateOfDeadline, subjectName, packageCode, ass.personID AS person_id FROM assignment ass INNER JOIN
-			(SELECT  pac.id AS package_id, subjectName, pac.packageCode FROM package pac INNER JOIN
-				(SELECT ex.id AS exam_id, sub.subjectName FROM subject sub INNER JOIN exam ex ON ex.subjectID = sub.id where ex.id= ? )
-				AS exam_sub ON exam_sub.exam_id = pac.examID)
-			 AS sep ON sep.package_id = ass.packageID AND ass.dateOfSubmission IS NULL )
-		 AS sepa ON sepa.person_id = per.id ORDER BY dateOfAssignment`;
+  const pendingPackagequery = `
+    SELECT 
+      ass.id AS id,
+      pac.packageCode,
+      sub.subjectName,
+      ass.dateOfAssignment,
+      ass.dateOfDeadline,
+      per.fullName,
+      per.contact,
+      per.email
+    FROM assignment ass
+    INNER JOIN package pac ON pac.id = ass.packageID
+    INNER JOIN exam ex ON ex.id = pac.examID
+    INNER JOIN subject sub ON sub.id = ex.subjectID
+    INNER JOIN person per ON per.id = ass.personID
+    WHERE ex.id = ? AND (
+      ass.dateOfSubmission IS NULL
+      OR (pac.status = 'Recheck' AND ass.resubmissionDate IS NULL)
+    )
+    ORDER BY ass.dateOfAssignment`;
 
   const db = connectToDB();
   db.all(pendingPackagequery, [req.params.id], (err, rows) => {
@@ -93,30 +129,30 @@ router.get("/getAssignments", (req, res) => {
             ON a.packageID=p.id
           ) AS asgn
           ON person.id = asgn.personID`;
-          
-          const db = connectToDB();
-          db.all(assignedQuery, [], (err, rows) => {
-            if (err) {
-              res.status(404).send("The data does not exist");
-            } else {
-              res.status(200).send(JSON.parse(JSON.stringify(rows)));
-              console.log("Assignments returned");
-            }
-          });
-          db.close((err) => {
-            if (err) {
-              console.error(err.message);
-            }
-            console.log("Close the database connection.");
-          });
-        });
-        
+
+  const db = connectToDB();
+  db.all(assignedQuery, [], (err, rows) => {
+    if (err) {
+      res.status(404).send("The data does not exist");
+    } else {
+      res.status(200).send(JSON.parse(JSON.stringify(rows)));
+      console.log("Assignments returned");
+    }
+  });
+  db.close((err) => {
+    if (err) {
+      console.error(err.message);
+    }
+    console.log("Close the database connection.");
+  });
+});
+
 router.get("/getExams", (req, res) => {
-  
+
   const examGetterQuery = `SELECT exam.id, exam.date, exam.examType, exam.subjectID , subject.subjectName,
   courseCode, programName
   FROM exam JOIN (subject JOIN program ON programID=program.id) ON subjectID = subject.id;`;
-  
+
   const db = connectToDB();
   db.all(examGetterQuery, [], (err, rows) => {
     if (err) {
@@ -256,7 +292,7 @@ router.get("/getAllPackages", (req, res) => {
 
   const getPack = `SELECT   pac.id AS id, subjectName, courseCode, subjectName || '-' || date as exam, examType, 
     pac.packageCode, pac.noOfCopies, pac.codeStart || ' - ' || pac.codeEnd as codeRange, pac.status,
-    per.fullName as examinerName, per.contact as examinerContact, ass.dateOfSubmission
+    per.fullName as examinerName, per.contact as examinerContact, ass.dateOfSubmission, ass.resubmissionDate
     FROM package pac 
     INNER JOIN (
       SELECT ex.id AS exam_id, ex.date, ex.examType, sub.subjectName, sub.courseCode 
@@ -399,7 +435,9 @@ router.get("/getOneSubject/:id", (req, res) => {
 });
 
 router.get("/getOneAssignment/:id", (req, res) => {
-  const getOneAssignment = `SELECT packageCode,  contact,dateOfSubmission, dateOfAssignment,fullName AS name,dateofDeadline as dateOfDeadline from assignment JOIN person JOIN package where personID = person.id and packageID = package.id and assignment.id =?; `;
+  const getOneAssignment = `SELECT packageCode,  contact, dateOfSubmission, dateOfAssignment, fullName AS name, dateofDeadline as dateOfDeadline, package.status as status 
+  from assignment JOIN person JOIN package 
+  where personID = person.id and packageID = package.id and assignment.id =?; `;
   const db = connectToDB();
   db.all(getOneAssignment, [req.params.id], (err, rows) => {
     if (err) {
@@ -555,6 +593,64 @@ router.get("/getDepartments", (req, res) => {
     res.json(rows);
   });
   db.close();
+});
+
+router.get("/getPackageStatusCounts", (req, res) => {
+  const db = connectToDB();
+  const statuses = [
+    "Submitted",
+    "Pending",
+    "Not Assigned",
+    "Scrutinized",
+    "Recheck"
+  ];
+  const counts = {};
+  let completed = 0;
+  statuses.forEach((status) => {
+    db.get(
+      "SELECT COUNT(*) as count FROM package WHERE status = ?",
+      [status],
+      (err, row) => {
+        counts[status] = row ? row.count : 0;
+        completed++;
+        if (completed === statuses.length) {
+          res.status(200).json(counts);
+          db.close();
+        }
+      }
+    );
+  });
+});
+
+// Fetch all data from package and assignment table for a given package id
+router.get("/getPackageAndAssignment/:id", (req, res) => {
+  const db = connectToDB();
+  const packageId = req.params.id;
+  const query = `
+    SELECT pac.*, ass.*, exam_sub.subjectName, exam_sub.courseCode, exam_sub.date, exam_sub.examType,
+      per.fullName as examinerName, per.contact as examinerContact
+    FROM package pac
+    INNER JOIN (
+      SELECT ex.id AS exam_id, ex.date, ex.examType, sub.subjectName, sub.courseCode
+      FROM subject sub
+      INNER JOIN exam ex ON ex.subjectID = sub.id
+    ) AS exam_sub ON exam_sub.exam_id = pac.examID
+    LEFT JOIN assignment ass ON ass.packageID = pac.id
+    LEFT JOIN person per ON per.id = ass.personID
+    WHERE pac.id = ?
+  `;
+  db.all(query, [packageId], (err, rows) => {
+    if (err) {
+      res.status(500).send("Error fetching package and assignment data");
+    } else {
+      res.status(200).json(rows);
+    }
+  });
+  db.close((err) => {
+    if (err) {
+      console.error(err.message);
+    }
+  });
 });
 
 module.exports = router;

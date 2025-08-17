@@ -1,5 +1,6 @@
 import { faTrash, faEdit } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
+import { Link } from "react-router-dom";
 import utils from "../../../utils/utils.jsx";
 import Table from "../../Widgets/Tables/tables.jsx";
 class PackageTable extends React.Component {
@@ -138,13 +139,14 @@ class PackageTable extends React.Component {
       
       // Process each field in the item
       Object.entries(item).forEach(([key, value]) => {
-        // For dateOfSubmission, apply special formatting
+        // For Submitted On: prefer resubmissionDate, else dateOfSubmission
         if (key === 'dateOfSubmission') {
           const status = item.status?.toLowerCase();
-          formattedItem[key] = (status === 'submitted' || status === 'scrutinized') && value
-            ? new Date(value).toLocaleDateString()
+          const effectiveDate = item?.resubmissionDate || value;
+          formattedItem[key] = (status === 'submitted' || status === 'scrutinized') && effectiveDate
+            ? new Date(effectiveDate).toLocaleDateString()
             : '—';
-        } 
+        }
         // For all other fields, replace falsy values with dash
         else {
           formattedItem[key] = value || '—';
@@ -170,12 +172,33 @@ class PackageTable extends React.Component {
             const formattedData = this.formatTableData(json);
             console.log('Formatted data:', formattedData[0]);
             
+            // Only wrap plain values in a Link for clickable rows
+            let clickableData = formattedData.map((element, index) => {
+              let id = element.id;
+              let clickableRow = { ...element };
+              for (let key in clickableRow) {
+                if (
+                  key !== "id" &&
+                  typeof clickableRow[key] !== "object" &&
+                  typeof clickableRow[key] !== "undefined"
+                ) {
+                  clickableRow[key] = (
+                    <Link key={key} to={`/admin/packages/${id}`} style={{ color: "inherit", textDecoration: "none" }}>
+                      {element[key]}
+                    </Link>
+                  );
+                }
+              }
+              return clickableRow;
+            });
+            // Build categories from plain formatted data to avoid React elements in <option>
             let categories = utils.createCategories(formattedData, this.headings);
             this.setState({
               isLoaded: true,
-              tableData: formattedData,
+              tableData: clickableData,
               categories: categories,
             });
+            return;
           }
         });
     }

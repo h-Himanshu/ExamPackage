@@ -30,7 +30,7 @@ class AssignPackageHome extends Component {
       // Map backend fields to frontend fields if needed
       const formattedData = Array.isArray(response) ? response : [response];
       const formattedWithSN = formattedData.map((row, idx) => ({
-        id: row.id, // <-- Add this line!
+        id: row.id, 
         sn: idx + 1,
         packageCode: row.packageCode, // must match backend
         subjectName: row.subjectName, // must match backend

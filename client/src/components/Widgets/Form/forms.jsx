@@ -94,6 +94,10 @@ const FormFields = props => {
     if (id === 'dateOfSubmission' && typeof props.onDateOfSubmissionChange === 'function') {
       props.onDateOfSubmissionChange(date);
     }
+    // If this is the resubmissionDate field and a handler is provided, call it
+    if (id === 'resubmissionDate' && typeof props.onResubmissionDateChange === 'function') {
+      props.onResubmissionDateChange(date);
+    }
   };
 
   const setValues = (values, id) => {
@@ -117,6 +121,10 @@ const FormFields = props => {
     let values = data.settings;
     let formTemplate = "";
     switch (values.element) {
+      case "hidden":
+        // Skip rendering for hidden fields
+        formTemplate = null;
+        break;
       case "date-picker-jq":
         formTemplate = (
           <div className="form-group row">
