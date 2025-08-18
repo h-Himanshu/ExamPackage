@@ -2,6 +2,8 @@ import { faTrash, faEdit } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 import { Link } from "react-router-dom";
 import utils from "../../../utils/utils.jsx";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import Table from "../../Widgets/Tables/tables.jsx";
 class PackageTable extends React.Component {
   sortingOnlyList = ["Status"];
@@ -283,6 +285,72 @@ class PackageTable extends React.Component {
     console.log(this.state);
   };
 
+  // Safely convert any value (including React elements) to plain text for export
+  getPlainText = (val) => {
+    if (val === null || val === undefined) return "—";
+    if (React.isValidElement(val)) {
+      const children = val.props && val.props.children;
+      if (Array.isArray(children)) {
+        return children.map((c) => this.getPlainText(c)).join("");
+      }
+      return this.getPlainText(children);
+    }
+    if (typeof val === "object") {
+      try {
+        return JSON.stringify(val);
+      } catch (e) {
+        return String(val);
+      }
+    }
+    return String(val);
+  };
+
+  // Get currently visible rows (respects Advanced Search filters)
+  getVisibleRows = () => {
+    const data = this.state.isFiltered ? this.state.filtered : this.state.tableData;
+    return Array.isArray(data) ? data : [];
+  };
+
+  handleGenerateReport = () => {
+    try {
+      // Prepare headers: S.N + current headings (Status already removed if filtered earlier)
+      const headers = ["S.N", ...this.headings.map((h) => h.label)];
+      const fields = this.headings.map((h) => h.field);
+
+      // Rows
+      const rows = this.getVisibleRows().map((row, idx) => {
+        const cells = fields.map((f) => this.getPlainText(row[f]));
+        return [idx + 1, ...cells];
+      });
+
+      const orientation = headers.length > 7 ? "landscape" : "portrait";
+      const doc = new jsPDF({ orientation, unit: "pt", format: "a4" });
+
+      // Title
+      const title = "Package Report";
+      doc.setFontSize(14);
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const textWidth = doc.getTextWidth(title);
+      doc.text(title, (pageWidth - textWidth) / 2, 40);
+
+      // Table
+  autoTable(doc, {
+        head: [headers],
+        body: rows,
+        startY: 60,
+        styles: { fontSize: 8, cellPadding: 4 },
+        headStyles: { fillColor: [52, 58, 64], halign: "center" },
+        bodyStyles: { valign: "middle" },
+        theme: "grid",
+  });
+
+      doc.save("package-report.pdf");
+    } catch (err) {
+      console.error("PDF export failed", err);
+      if (typeof window !== "undefined") alert("Failed to generate PDF.");
+    }
+  };
+
   render() {
     console.log(this.state.tableData);
     return (
@@ -298,7 +366,9 @@ class PackageTable extends React.Component {
           actions={this.actions}
           categories={this.state.categories}
         />
-        
+        <div className="d-flex justify-content-center" style={{ marginBottom: '10px' }}>
+          <button type="button" className="btn btn-secondary" onClick={this.handleGenerateReport}>Generate Report</button>
+        </div>
       </div>
     );
   }
