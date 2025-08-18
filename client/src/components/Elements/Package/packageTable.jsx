@@ -344,7 +344,10 @@ class PackageTable extends React.Component {
         theme: "grid",
   });
 
-      doc.save("package-report.pdf");
+  const ts = new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 17); // YYYYMMDDHHMMSSmmm
+  const rand = Math.random().toString(36).slice(2, 8);
+  const fileName = `package-report-${ts}-${rand}.pdf`;
+  doc.save(fileName);
     } catch (err) {
       console.error("PDF export failed", err);
       if (typeof window !== "undefined") alert("Failed to generate PDF.");
