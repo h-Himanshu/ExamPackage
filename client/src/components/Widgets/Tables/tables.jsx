@@ -56,7 +56,7 @@ class MainTable extends React.Component {
             continue;
           }
 
-          if (key === "packageCode") {
+          if (key === "packageCode" && !this.props.disableLinks) {
             const val = datas[key];
             const link = `/packageHistory/${val}`;
             tempData[key] = <Link to={link}>{val}</Link>;
@@ -157,7 +157,7 @@ class MainTable extends React.Component {
           />
         )}
 
-        <div>
+  <div>
           <MDBDataTable
             //searching={false}
             data={this.data()}

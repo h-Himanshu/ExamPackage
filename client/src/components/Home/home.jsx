@@ -33,7 +33,7 @@ const buttons = [
     className: "home-button",
     color: "rgb(23,100,131)",
     icon: faEdit,
-    link: "/admin/view-packages",
+    link: "/admin/packages/view-packages",
   },
 ];
 const breadcrumbItems = [

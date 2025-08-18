@@ -10,6 +10,7 @@ import TeacherTable from "./components/Elements/Assignment/teacherTable.jsx";
 import AssignPackageWrapper from "./components/Elements/Assignment/AssignPackageWrapper.jsx";
 import AssignPackage from "./components/Elements/Assignment/assignPackage.jsx";
 import ViewPackage from "./components/Elements/Package/viewPackage.jsx";
+import PackagesByStatus from "./components/Elements/Package/PackagesByStatus.jsx";
 // import PackageHistory from "./components/Elements/Package/History/packageModal.js";
 import ReceivePackage from "./components/Elements/Package/receivePackage.jsx";
 import AssignPackageHome from "./components/Elements/Package/assignpackagehome.jsx";
@@ -98,11 +99,11 @@ const router = createBrowserRouter([
     element: <Layout />,
     children: [
       {
-  index: true,
-  element: <Navigate to="/admin/dashboard" replace />
+        index: true,
+        element: <Navigate to="/admin/dashboard" replace />
       },
       {
-  path: 'dashboard',
+        path: 'dashboard',
         element: <Dashboard />
       },
       {
@@ -113,10 +114,14 @@ const router = createBrowserRouter([
       },
 
       {
-        path: '/admin/view-packages',
+        path: '/admin/packages/view-packages',
         element: <>
           <ViewPackage />
         </>
+      },
+      {
+        path: '/admin/packages/status/:status',
+        element: <PackagesByStatus />
       },
 
       {
@@ -132,7 +137,7 @@ const router = createBrowserRouter([
         element: <AssignPackageWrapper />,
       },
       {
-        path: '/admin/packages/:packageId',
+        path: '/admin/packages/view-packages/:packageId',
         element: <PackageDetailWrapper />,
       },
       {

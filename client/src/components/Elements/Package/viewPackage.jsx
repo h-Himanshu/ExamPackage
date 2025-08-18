@@ -5,8 +5,12 @@ import "./packages.css";
 
 const breadCrumbItems = [
   {
-    text: "Packages/ View-Packages",
+    text: "Packages",
     link: "/admin/packages"
+  },
+  {
+    text: "View-packages",
+    link: "/admin/packages/view-packages"
   }
 ];
 

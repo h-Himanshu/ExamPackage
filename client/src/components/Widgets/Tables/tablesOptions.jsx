@@ -85,7 +85,7 @@ class TableOptions extends Component {
 
   searchBar = () => {
     return (
-      <div className="form-group col-md-1 col-lg-2">
+  <div className="form-group col-md-1 col-lg-2">
         <label htmlFor="searchBar">Search</label>
         <input
           type="text"

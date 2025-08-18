@@ -33,20 +33,22 @@ export default function Dashboard() {
   if (error) return <div>{error}</div>;
 
   return (
+    <>
+    <BreadcrumSection breadcrumbItems={[{ text: "Dashboard", link: "/admin/dashboard" }]} />
     <div className="dashboard-stats">
-      <BreadcrumSection breadcrumbItems={[{ text: "Dashboard", link: "/admin/dashboard" }]} />
       <h2>Package Status Overview</h2>
       <div className="dashboard-cards">
         {Object.keys(statusLabels).map((status) => (
-          <div className="dashboard-card" key={status}>
+          <a className="dashboard-card" key={status} href={`/admin/packages/status/${encodeURIComponent(status.toLowerCase().replace(/\s+/g, '-') )}`} style={{ textDecoration: 'none', color: 'inherit' }}>
             <span className="dashboard-icon" aria-label={statusLabels[status].label}>
               {statusLabels[status].icon}
             </span>
             <h3>{statusLabels[status].label}</h3>
             <p>{counts[status] || 0}</p>
-          </div>
+          </a>
         ))}
       </div>
     </div>
+    </>
   );
 }

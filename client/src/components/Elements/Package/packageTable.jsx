@@ -113,18 +113,44 @@ class PackageTable extends React.Component {
   };
 
   UNSAFE_componentWillReceiveProps = (props) => {
-    this.deleteUnnecessaryTableData(props);
-
     if (props.initialData) {
-      console.log(this.headings);
-      this.headings = this.headings.filter((el) => {
-        return el.label !== "Status";
-      });
+      // Hide Status column only when a specific status filter is active
+      if (props.statusFilter && this.headings.some((h) => h.label === "Status")) {
+        this.headings = this.headings.filter((el) => el.label !== "Status");
+      }
+      // Apply filtering if statusFilter provided
+      const sf = props.statusFilter ? String(props.statusFilter).toLowerCase() : null;
       let json = props.initialData;
-      let categories = utils.createCategories(json, this.headings);
+      if (sf) {
+        json = json.filter((el) => String(el.status || '').toLowerCase() === sf);
+      }
+      // Format data to ensure empty fields show as '—'
+      const formattedData = this.formatTableData(json);
+      // Optionally wrap cells in Links unless disabled or filtered by status
+      const clickableData = (this.props.disableClickable || props.statusFilter)
+        ? formattedData
+        : formattedData.map((element) => {
+            let id = element.id;
+            let clickableRow = { ...element };
+            for (let key in clickableRow) {
+              if (
+                key !== "id" &&
+                typeof clickableRow[key] !== "object" &&
+                typeof clickableRow[key] !== "undefined"
+              ) {
+                clickableRow[key] = (
+                  <Link key={key} to={`/admin/packages/view-packages/${id}`} style={{ color: "inherit", textDecoration: "none" }}>
+                    {element[key]}
+                  </Link>
+                );
+              }
+            }
+            return clickableRow;
+          });
+      let categories = utils.createCategories(formattedData, this.headings);
       this.setState({
         isLoaded: true,
-        tableData: json,
+        tableData: clickableData,
         categories: categories,
       });
     }
@@ -160,7 +186,44 @@ class PackageTable extends React.Component {
   componentDidMount() {
     console.log(this.props.initialData);
     if (this.props.initialData) {
-      this.deleteUnnecessaryTableData(this.props);
+      // If initialData is provided, optionally filter by statusFilter and hide Status column
+      const { statusFilter } = this.props;
+      if (statusFilter && this.headings.some((h) => h.label === "Status")) {
+        this.headings = this.headings.filter((el) => el.label !== "Status");
+      }
+      let data = this.props.initialData;
+      if (statusFilter) {
+        const sf = String(statusFilter).toLowerCase();
+        data = data.filter((el) => String(el.status || '').toLowerCase() === sf);
+      }
+      // Format the data before setting state so empty fields show as '—'
+      const formattedData = this.formatTableData(data);
+      const clickableData = (this.props.disableClickable || statusFilter)
+        ? formattedData
+        : formattedData.map((element) => {
+            let id = element.id;
+            let clickableRow = { ...element };
+            for (let key in clickableRow) {
+              if (
+                key !== "id" &&
+                typeof clickableRow[key] !== "object" &&
+                typeof clickableRow[key] !== "undefined"
+              ) {
+                clickableRow[key] = (
+                  <Link key={key} to={`/admin/packages/view-packages/${id}`} style={{ color: "inherit", textDecoration: "none" }}>
+                    {element[key]}
+                  </Link>
+                );
+              }
+            }
+            return clickableRow;
+          });
+      let categories = utils.createCategories(formattedData, this.headings);
+      this.setState({
+        isLoaded: true,
+        tableData: clickableData,
+        categories: categories,
+      });
     } else {
       fetch("/API/query/getAllPackages")
         .then((res) => res.json())
@@ -168,12 +231,23 @@ class PackageTable extends React.Component {
           console.log('API Response:', json);
           if (json && json.length > 0) {
             console.log('First package data:', json[0]);
+            // Optionally filter by status before formatting and hide Status column
+            const { statusFilter } = this.props;
+            if (statusFilter && this.headings.some((h) => h.label === "Status")) {
+              this.headings = this.headings.filter((el) => el.label !== "Status");
+            }
+            const source = statusFilter
+              ? json.filter((el) => String(el.status || '').toLowerCase() === String(statusFilter).toLowerCase())
+              : json;
             // Format the data before setting state
-            const formattedData = this.formatTableData(json);
+            const formattedData = this.formatTableData(source);
             console.log('Formatted data:', formattedData[0]);
             
-            // Only wrap plain values in a Link for clickable rows
-            let clickableData = formattedData.map((element, index) => {
+            // Optionally disable wrapping cells in Links (when disableClickable is true or a statusFilter is active)
+            let clickableData = formattedData.map((element) => {
+              if (this.props.disableClickable || this.props.statusFilter) {
+                return { ...element };
+              }
               let id = element.id;
               let clickableRow = { ...element };
               for (let key in clickableRow) {
@@ -183,7 +257,7 @@ class PackageTable extends React.Component {
                   typeof clickableRow[key] !== "undefined"
                 ) {
                   clickableRow[key] = (
-                    <Link key={key} to={`/admin/packages/${id}`} style={{ color: "inherit", textDecoration: "none" }}>
+                    <Link key={key} to={`/admin/packages/view-packages/${id}`} style={{ color: "inherit", textDecoration: "none" }}>
                       {element[key]}
                     </Link>
                   );
@@ -214,6 +288,7 @@ class PackageTable extends React.Component {
     return (
       <div className="mainTable">
         <Table
+          disableLinks={this.props.disableClickable || !!this.props.statusFilter}
           headings={this.headings}
           tableData={
             this.state.isFiltered ? this.state.filtered : this.state.tableData
@@ -223,6 +298,7 @@ class PackageTable extends React.Component {
           actions={this.actions}
           categories={this.state.categories}
         />
+        
       </div>
     );
   }
