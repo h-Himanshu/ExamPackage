@@ -216,7 +216,7 @@ const FormFields = props => {
               ) : null}
             </div>
                {values.quickLink?
-               <Link target= "_blank" to= {values.quickLink.link}>
+               <Link to= {values.quickLink.link}>
                 <FontAwesomeIcon icon= {faPlus}/>
                </Link>
                 :null} 

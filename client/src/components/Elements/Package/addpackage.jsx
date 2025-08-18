@@ -2,7 +2,7 @@ import { Component } from "react";
 import BreadCrumb from "../../Widgets/Breadcrumb/breadcrumb.jsx";
 import FormFields from "../../Widgets/Form/forms.jsx";
 import PackageTable from "./packageTable.jsx";
-
+import { useNavigate } from "react-router-dom";
 const breadCrumbItems = [
   {
     text: "Add New Package",
@@ -523,7 +523,7 @@ class AddNewPackage extends Component {
           console.log(body);
           if (res.status === 200) {
             if (packageID !== undefined) {
-              this.props.history.goBack();
+              Navigate(-1);
               return;
             }
             body["status"] = "Not Assigned";
