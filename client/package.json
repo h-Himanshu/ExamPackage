@@ -33,7 +33,7 @@
 		"vite": "^7.0.0"
 	},
 	"scripts": {
-		"start": "vite --port 9131",
+		"start": "vite --port 9135 --host 0.0.0.0",
 		"build": "vite build",
 		"serve": "vite preview"
 	},
