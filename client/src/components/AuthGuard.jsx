@@ -48,31 +48,30 @@ function AuthGuard({ children }) {
 
 //   console.log("AuthGuard render:", { isLoading, isAuthenticated, error });
 
-//   if (isLoading) {
-//     return (
-//       <div style={{ 
-//         display: "flex", 
-//         flexDirection: "column",
-//         justifyContent: "center", 
-//         alignItems: "center", 
-//         height: "100vh",
-//         fontSize: "18px",
-//         backgroundColor: "#f5f5f5"
-//       }}>
-//         <div>Checking authentication...</div>
-//         {error && (
-//           <div style={{ 
-//             marginTop: "10px", 
-//             fontSize: "14px", 
-//             color: "red",
-//             textAlign: "center"
-//           }}>
-//             Debug: {error}
-//           </div>
-//         )}
-//       </div>
-//     );
-//   }
+  if (isLoading) {
+    return (
+      <div style={{ 
+        display: "flex", 
+        flexDirection: "column",
+        justifyContent: "center", 
+        alignItems: "center", 
+        height: "100vh",
+        fontSize: "18px",
+        backgroundColor: "#f5f5f5"
+      }}>
+        {error && (
+          <div style={{ 
+            marginTop: "10px", 
+            fontSize: "14px", 
+            color: "red",
+            textAlign: "center"
+          }}>
+            Debug: {error}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     // console.log("AuthGuard: Redirecting to login page");
