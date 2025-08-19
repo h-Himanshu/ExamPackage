@@ -4,6 +4,7 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import Home from "./components/Home/home.jsx";
 import Layout from "./hoc/layout.jsx";
 import AuthGuard from "./components/AuthGuard.jsx";
+import LoginGuard from "./components/LoginGuard.jsx";
 
 import AddPackage from "./components/Elements/Package/addpackage.jsx";
 import EditPackage from "./components/Elements/Package/EditPackage.jsx";
@@ -84,11 +85,11 @@ const loader = async ({ params }) => {
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Login />
+    element: <LoginGuard />
   },
   {
     path: '/login',
-    element: <Login />
+    element: <LoginGuard />
   },
   {
     path: '/teacher/:teacherID',
