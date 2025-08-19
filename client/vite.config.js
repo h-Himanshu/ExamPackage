@@ -13,6 +13,10 @@ export default defineConfig(() => {
           target: 'https://exam-backend.itclub.asmitphuyal.com.np',
           changeOrigin: true,
         },
+        '/user': {
+          target: 'https://exam-backend.itclub.asmitphuyal.com.np',
+          changeOrigin: true,
+        },
       },
       allowedHosts: [
         'exam-pkg-mgmt.itclub.asmitphuyal.com.np'

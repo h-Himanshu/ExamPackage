@@ -3,6 +3,7 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 
 import Home from "./components/Home/home.jsx";
 import Layout from "./hoc/layout.jsx";
+import AuthGuard from "./components/AuthGuard.jsx";
 
 import AddPackage from "./components/Elements/Package/addpackage.jsx";
 import EditPackage from "./components/Elements/Package/EditPackage.jsx";
@@ -96,7 +97,11 @@ const router = createBrowserRouter([
   },
   {
     path: '/admin',
-    element: <Layout />,
+    element: (
+      <AuthGuard>
+        <Layout />
+      </AuthGuard>
+    ),
     children: [
       {
         index: true,

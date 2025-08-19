@@ -22,11 +22,25 @@ export default function ButtonAppBar() {
   const navigate = useNavigate();
 
   const logout = () => {
-    fetch("/API/logout").then((res) => {
-      if (res.ok) {
+    fetch("/API/logout", {
+      method: "GET",
+      credentials: "include", // Important: Include cookies for session
+    })
+      .then((res) => {
+        if (res.ok) {
+          console.log("Logout successful");
+          navigate("/login");
+        } else {
+          console.error("Logout failed with status:", res.status);
+          // Still navigate to login even if logout fails
+          navigate("/login");
+        }
+      })
+      .catch((error) => {
+        console.error("Logout error:", error);
+        // Navigate to login anyway
         navigate("/login");
-      }
-    });
+      });
   };
 
   return (
