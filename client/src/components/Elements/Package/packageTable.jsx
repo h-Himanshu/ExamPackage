@@ -326,8 +326,12 @@ class PackageTable extends React.Component {
       const orientation = headers.length > 7 ? "landscape" : "portrait";
       const doc = new jsPDF({ orientation, unit: "pt", format: "a4" });
 
-      // Title
-      const title = "Package Report";
+      // Title - include status if filtered
+      let title = "Package Report";
+      if (this.props.statusFilter) {
+        const statusText = String(this.props.statusFilter).charAt(0).toUpperCase() + String(this.props.statusFilter).slice(1).toLowerCase();
+        title = `${statusText} Package Report`;
+      }
       doc.setFontSize(14);
       const pageWidth = doc.internal.pageSize.getWidth();
       const textWidth = doc.getTextWidth(title);
