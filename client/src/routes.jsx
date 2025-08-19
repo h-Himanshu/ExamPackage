@@ -5,7 +5,7 @@ import Home from "./components/Home/home.jsx";
 import Layout from "./hoc/layout.jsx";
 
 import AddPackage from "./components/Elements/Package/addpackage.jsx";
-import EditPackage from "./components/Elements/Package/editpackage.jsx";
+import EditPackage from "./components/Elements/Package/EditPackage.jsx";
 import TeacherTable from "./components/Elements/Assignment/teacherTable.jsx";
 import AssignPackageWrapper from "./components/Elements/Assignment/AssignPackageWrapper.jsx";
 import AssignPackage from "./components/Elements/Assignment/assignPackage.jsx";
