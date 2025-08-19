@@ -7,6 +7,7 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import crossTabLogout from "../../utils/crossTabLogout";
 
 export default function ButtonAppBar() {
   // const authenticated = useContext(AuthenticatedContext);
@@ -22,25 +23,8 @@ export default function ButtonAppBar() {
   const navigate = useNavigate();
 
   const logout = () => {
-    fetch("/API/logout", {
-      method: "GET",
-      credentials: "include", // Important: Include cookies for session
-    })
-      .then((res) => {
-        if (res.ok) {
-          console.log("Logout successful");
-          navigate("/login");
-        } else {
-          console.error("Logout failed with status:", res.status);
-          // Still navigate to login even if logout fails
-          navigate("/login");
-        }
-      })
-      .catch((error) => {
-        console.error("Logout error:", error);
-        // Navigate to login anyway
-        navigate("/login");
-      });
+    // Use cross-tab logout utility instead of direct fetch
+    crossTabLogout.initiateLogout();
   };
 
   return (
