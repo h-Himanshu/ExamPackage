@@ -8,12 +8,15 @@ export default defineConfig(() => {
     },
     plugins: [react()],
     server: {
-    proxy: {
-      '/API': {
-        target: 'https://exam-backend.itclub.asmitphuyal.com.np',
-        changeOrigin: true,
+      proxy: {
+        '/API': {
+          target: 'https://exam-backend.itclub.asmitphuyal.com.np',
+          changeOrigin: true,
+        },
       },
+      allowedHosts: [
+        'exam-pkg-mgmt.itclub.asmitphuyal.com.np'
+      ],
     },
-  },
   };
 });
