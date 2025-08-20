@@ -5,14 +5,7 @@ import PackageDetail from "./PackageDetail.jsx";
 
 const PackageDetailWrapper = () => {
   const { packageId } = useParams();
-  const [packageData, setPackageData] = useState(null);
 
-  useEffect(() => {
-    fetch(`/API/query/getPackageById/${packageId}`)
-      .then((res) => res.json())
-      .then((data) => setPackageData(data))
-      .catch(() => setPackageData(null));
-  }, [packageId]);
 
   return (
     <>
@@ -25,7 +18,7 @@ const PackageDetailWrapper = () => {
         />
         <h3>Package Details</h3>
     <div className="container mt-4">
-      <PackageDetail packageData={packageData} />
+      <PackageDetail packageId={packageId} />
     </div>
     </>
   );
