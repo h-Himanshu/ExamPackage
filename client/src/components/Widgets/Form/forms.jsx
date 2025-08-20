@@ -119,9 +119,13 @@ const FormFields = props => {
 
   const renderTemplates = data => {
     let values = data.settings;
+    if (!values) {
+      console.warn('renderTemplates: data.settings is undefined for', data);
+      return null;
+    }
     let formTemplate = "";
     switch (values.element) {
-      case "hidden":
+  case "hidden":
         // Skip rendering for hidden fields
         formTemplate = null;
         break;
@@ -191,22 +195,23 @@ const FormFields = props => {
       case "select":
         formTemplate = (
           <div className="form-group row">
-            {showLabel(values.validation.required, values.labelText)}
+            {values.validation && typeof values.validation.required !== 'undefined'
+              ? showLabel(values.validation.required, values.labelText)
+              : showLabel(false, values.labelText)}
             <div className="col-sm-6">
               <div>
-
-              <select
-                value={values.value}
-                name={values.config.name}
-                onChange={event => changeHandler(event, data.id)}
-                className="form-control"
+                <select
+                  value={values.value}
+                  name={values.config.name}
+                  onChange={event => changeHandler(event, data.id)}
+                  className="form-control"
                 >
-                <option value="0">Select {values.config.name}</option>
-                {values.config.options.map((item, i) => (
-                  <option key={i} value={item.val}>
-                    {item.text}
-                  </option>
-                ))}
+                  <option value="0">Select {values.config.name}</option>
+                  {values.config.options.map((item, i) => (
+                    <option key={i} value={item.val}>
+                      {item.text}
+                    </option>
+                  ))}
                 </select>
               </div>
               {!values.valid ? (
@@ -215,13 +220,14 @@ const FormFields = props => {
                 </div>
               ) : null}
             </div>
-               {values.quickLink?
-               <Link to= {values.quickLink.link}>
-                <FontAwesomeIcon icon= {faPlus}/>
-               </Link>
-                :null} 
+            {values.quickLink ? (
+              <Link to={values.quickLink.link}>
+                <FontAwesomeIcon icon={faPlus}/>
+              </Link>
+            ) : null}
           </div>
         );
+        break;
 
         break;
       case "inputselect": {

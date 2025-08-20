@@ -338,7 +338,7 @@ class Person extends React.Component {
     const breadCrumbItems = [
       {
         text: "Persons",
-        link: "/admin/intermediate"
+        link: "/admin/person"
       },
       {
         text: personID ? "Edit Person" : "Add New Person",

@@ -8,7 +8,7 @@ import "./assignment.css";
 const breadCrumbItem = [
   {
     text: "Persons",
-    link: "/admin/intermediate",
+    link: "/admin/person",
   },
 ];
 
