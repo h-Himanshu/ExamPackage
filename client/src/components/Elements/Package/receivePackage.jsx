@@ -408,13 +408,13 @@ class ReceivePackage extends Component {
       chosenDateField.value === "" ||
       chosenDateField.value === null
     ) {
+      const today = new Date();
+      const dd = today.getDate();
+      const mm = today.getMonth() + 1; //Months are zero based
+      const yyyy = today.getFullYear();
+      const nepaliDate = adbs.ad2bs(yyyy + "/" + mm + "/" + dd).en;
+      //Year month day format with  0 padded if mm or dd < 10
       if (!isRecheck) {
-        const today = new Date();
-        const dd = today.getDate();
-        const mm = today.getMonth() + 1; //Months are zero based
-        const yyyy = today.getFullYear();
-        const nepaliDate = adbs.ad2bs(yyyy + "/" + mm + "/" + dd).en;
-        //Year month day format with  0 padded if mm or dd < 10
         console.log(nepaliDate);
         dataToSubmit["dateOfSubmission"] =
           nepaliDate.year.toString() +
@@ -422,6 +422,16 @@ class ReceivePackage extends Component {
           ("0" + nepaliDate.month.toString()).slice(-2) +
           "/" +
           ("0" + nepaliDate.day.toString()).slice(-2);
+      }
+      else 
+      {
+        dataToSubmit["resubmissionDate"] =
+          nepaliDate.year.toString() +
+          "/" +
+          ("0" + nepaliDate.month.toString()).slice(-2) +
+          "/" +
+          ("0" + nepaliDate.day.toString()).slice(-2);
+
       }
     } else {
       dataToSubmit["dateOfSubmission"] = this.formatNepaliDateToEng(
