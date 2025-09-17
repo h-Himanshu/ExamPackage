@@ -1,4 +1,4 @@
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faEye } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 import { Link } from "react-router-dom";
 import BreadCrumb from "../../Widgets/Breadcrumb/breadcrumb.jsx";
@@ -23,6 +23,12 @@ class PersonTable extends React.Component {
     { label: "Campus", field: "campus", sort: "asc", width: 120 },
   ];
   actions = [
+    {
+      text: "View Details",
+      icon: faEye,
+      link: "/admin/persons/",
+      linkSuffix: "/assignments"
+    },
     // {
     //   text: "Edit",
     //   icon: faEdit,
@@ -49,7 +55,6 @@ class PersonTable extends React.Component {
       .then((res) => res.json())
       .then((json) => {
         let categories = utils.createCategories(json, this.headings);
-        // Ensure all required fields exist (only new fields)
         json.forEach((element) => {
           element.name = element.name || "";
           element.contact = element.contact || "";
@@ -58,6 +63,7 @@ class PersonTable extends React.Component {
           element.year_part = element.year_part || "";
           element.subject = element.subject || "";
           element.campus = element.campus || "";
+        
         });
         this.setState({
           isLoaded: true,

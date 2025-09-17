@@ -13,7 +13,6 @@ import AssignPackageWrapper from "./components/Elements/Assignment/AssignPackage
 import AssignPackage from "./components/Elements/Assignment/assignPackage.jsx";
 import ViewPackage from "./components/Elements/Package/viewPackage.jsx";
 import PackagesByStatus from "./components/Elements/Package/PackagesByStatus.jsx";
-// import PackageHistory from "./components/Elements/Package/History/packageModal.js";
 import ReceivePackage from "./components/Elements/Package/receivePackage.jsx";
 import AssignPackageHome from "./components/Elements/Package/assignpackagehome.jsx";
 import AddNewExam from "./components/Elements/Exam/addExam.jsx";
@@ -42,6 +41,7 @@ import Teacher from "./pages/teacher/index.jsx"
 import Dashboard from "./components/Dashboard/Dashboard.jsx"
 
 import adbs from "ad-bs-converter";
+import PersonAssignments from "./components/Elements/Person/PersonAssignments.jsx";
 
 
 const loader = async ({ params }) => {
@@ -110,7 +110,7 @@ const router = createBrowserRouter([
       },
       {
         path: 'dashboard',
-        element: <Dashboard />
+        element: <Dashboard />,
       },
       {
         path: '/admin/packages',
@@ -234,6 +234,10 @@ const router = createBrowserRouter([
       {
         path: '/admin/delete/:type/:id',
         element: <Delete />
+      },
+      {
+        path: '/admin/persons/:personId/assignments',
+        element: <PersonAssignments />,
       },
       {
         path: '*',

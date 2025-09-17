@@ -1,4 +1,20 @@
-.personTable tbody tr:hover  a
+/* .personTable tbody tr:hover  a
 {
     color:blue !important;
+} */
+
+/* Separate action icons with borders */
+.personTable tbody td:last-child a {
+    padding: 8px 12px;
+    margin: 2px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    display: inline-block;
+    background-color: #f8f9fa;
+    transition: all 0.2s ease;
+}
+
+.personTable tbody td:last-child a:hover {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
 }

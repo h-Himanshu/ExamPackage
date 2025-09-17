@@ -49,18 +49,18 @@ router.get('/getPersonSpecificPackage/:personID', (req, res) => {
     SELECT 
       pac.packageCode,
       sub.subjectName,
-      ass.dateOfAssignment,
-      ass.dateOfDeadline,
-  -- per.email as email (removed)
+      sub.subjectName || '-' || ex.date as exam,
+      ex.examType,
+      pac.noOfCopies,
+      pac.codeStart || ' - ' || pac.codeEnd as codeRange,
+      pac.status,
+      ass.dateOfSubmission
     FROM assignment ass
     INNER JOIN package pac ON pac.id = ass.packageID
     INNER JOIN exam ex ON ex.id = pac.examID
     INNER JOIN subject sub ON sub.id = ex.subjectID
     INNER JOIN person per ON per.id = ass.personID
     WHERE per.id = ?
-      AND (
-        ass.dateOfSubmission IS NULL OR (pac.status = 'Recheck' AND ass.resubmissionDate IS NULL)
-      )
     ORDER BY ass.dateOfAssignment`;
 
   const db = connectToDB();
@@ -69,7 +69,7 @@ router.get('/getPersonSpecificPackage/:personID', (req, res) => {
     if (err) res.status(404).send("The data does not exist");
     else {
       res.status(200).send(JSON.parse(JSON.stringify(rows)));
-      console.log(rows)
+      // console.log(rows)
       console.log("Person Specific Packages sent");
     }
 
