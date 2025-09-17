@@ -8,11 +8,17 @@ import Typography from "@mui/material/Typography";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import crossTabLogout from "../../utils/crossTabLogout";
+import MenuIcon from "@mui/icons-material/Menu";
+import Drawer from "@mui/material/Drawer";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import "./Navbar.css";
 
 export default function ButtonAppBar() {
-  // const authenticated = useContext(AuthenticatedContext);
-
   const [session, setSession] = useState("");
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const navigate = useNavigate();
+
   useEffect(() => {
     fetch("/API/query/getSessionName")
       .then((res) => res.json())
@@ -20,12 +26,22 @@ export default function ButtonAppBar() {
       .catch((err) => console.log(err));
   }, []);
 
-  const navigate = useNavigate();
+  const toggleDrawer = () => setDrawerOpen((open) => !open);
 
   const logout = () => {
-    // Use cross-tab logout utility instead of direct fetch
     crossTabLogout.initiateLogout();
   };
+
+  const navLinks = [
+    { to: "/admin/dashboard", label: "Dashboard" },
+    { to: "/admin/session", label: "Session" },
+    { to: "/admin/departments", label: "Department" },
+    { to: "/admin/programs", label: "Program" },
+    { to: "/admin/subjects", label: "Subject" },
+    { to: "/admin/exams", label: "Exam" },
+    { to: "/admin/packages", label: "Package" },
+    { to: "/admin/Person", label: "Expert" },
+  ];
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -33,146 +49,74 @@ export default function ButtonAppBar() {
         position="static"
         sx={{ minHeight: "150px", display: "flex", justifyContent: "center" }}
       >
-        <Toolbar>
-          <div className="logo" style={{ display: "flex" }}>
-            <IconButton
-              size="large"
-              edge="start"
-              color="inherit"
-              aria-label="menu"
-            >
+        <Toolbar sx={{ display: "flex", alignItems: "center" }}>
+          {/* Left: Logo + Title */}
+          <Box sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
+            <IconButton size="large" edge="start" color="inherit">
               <Link to="/admin">
                 <img alt="TU logo" src="/images/logo.png" width="55" />
               </Link>
             </IconButton>
-            <Link to="/admin">
+            <Link to="/admin" style={{ textDecoration: "none" }}>
               <Typography variant="h5" sx={{ color: "white" }}>
                 Exam Package Management System
               </Typography>
               <Typography
-                variant="h7"
-                sx={{ color: "white", textAlign: "center", fontWeight: "400" }}
+                variant="subtitle2"
+                sx={{ color: "white", fontWeight: 400 }}
               >
                 {session || "no-session-exists"}
               </Typography>
             </Link>
-          </div>
+          </Box>
 
-          <Stack direction="row" spacing={2} sx={{ ml: "auto" }}>
-            <Link to="/admin/dashboard">
-              <Typography
-                variant="h8"
-                component="div"
-                sx={{ flexGrow: 0.5, color: "white" }}
-              >
-                Dashboard
-              </Typography>
-            </Link>
-            <Link to="/admin/session">
-              <Typography
-                variant="h8"
-                component="div"
-                sx={{ flexGrow: 0.5, color: "white" }}
-              >
-                Session
-              </Typography>
-            </Link>
-            <Link to="/admin/departments">
-              <Typography
-                variant="h8"
-                component="div"
-                sx={{ flexGrow: 1, color: "white" }}
-              >
-                Department
-              </Typography>
-            </Link>
-            <Link to="/admin/programs">
-              <Typography
-                variant="h8"
-                component="div"
-                sx={{ flexGrow: 0.5, color: "white" }}
-              >
-                Program
-              </Typography>
-            </Link>
-            <Link to="/admin/subjects">
-              <Typography
-                variant="h8"
-                component="div"
-                sx={{ flexGrow: 0.5, color: "white" }}
-              >
-                Subject
-              </Typography>
-            </Link>
-            <Link to="/admin/exams">
-              <Typography
-                variant="h8"
-                component="div"
-                sx={{ flexGrow: 0.5, color: "white" }}
-              >
-                Exam
-              </Typography>
-            </Link>
-            <Link to="/admin/packages">
-              {" "}
-              <Typography
-                variant="h8"
-                component="div"
-                sx={{ flexGrow: 0.5, color: "white" }}
-              >
-                Package
-              </Typography>
-            </Link>
-            <Link to="/admin/Person">
-              <Typography
-                variant="h8"
-                component="div"
-                sx={{ flexGrow: 0.5, color: "white" }}
-              >
-                Expert
-              </Typography>
-            </Link>
+          {/* Middle: Horizontal nav (desktop only) */}
+          <Stack
+            direction="row"
+            spacing={2}
+            className="nav-links"
+            sx={{ display: { xs: "none", md: "flex" }, mr: 2 }}
+          >
+            {navLinks.map((n) => (
+              <Link key={n.to} to={n.to} style={{ textDecoration: "none" }}>
+                <Typography sx={{ color: "white" }}>{n.label}</Typography>
+              </Link>
+            ))}
             <Button
               color="inherit"
-              sx={{ color: "white", padding: "0" }}
-              onClick={() => logout()}
+              sx={{ color: "white", padding: 0 }}
+              onClick={logout}
             >
               Logout
             </Button>
           </Stack>
-          {/* {authenticated ? (
-          <div className="user-logo">
-            <button
-              onClick={() => {
-                fetch("/API/logout").then(() => {
-                  window.location.href = "/";
-                  window.location.reload();
-                });
-              }}
-              className="btn btn-link"
-              style={{
-                fontSize: "1em",
-              }}
-            >
-              <FontAwesomeIcon
-                icon={faSignOutAlt}
-                style={{ color: "white" }}
-                className="user-icon"
-              />
-            </button>
-          </div>
-        ) : (
-          <div className="user-logo">
-            <Link
-              to="/login"
-              style={{ textDecoration: "none", color: "white" }}
-            >
-              <FontAwesomeIcon icon={faUser} className="user-icon" />
-            </Link>
-          </div>
-        )} */}
+
+          {/* Right: Hamburger icon (mobile only) */}
+          <IconButton
+            edge="end"
+            className="menu-btn"
+            color="inherit"
+            onClick={toggleDrawer}
+            sx={{ ml: "auto", display: { xs: "block", md: "none" } }}
+          >
+            <MenuIcon />
+          </IconButton>
         </Toolbar>
       </AppBar>
+
+      {/* Drawer menu for small screens */}
+      <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer}>
+        <List sx={{ width: 220 }}>
+          {navLinks.map((n) => (
+            <ListItem key={n.to}>
+              <Link to={n.to} style={{ textDecoration: "none" }} onClick={toggleDrawer}>
+                {n.label}
+              </Link>
+            </ListItem>
+          ))}
+          <ListItem button onClick={logout} sx={{ color: '#1976d2', fontWeight: 600 }}>Logout</ListItem>
+        </List>
+      </Drawer>
     </Box>
   );
 }

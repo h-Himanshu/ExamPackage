@@ -12,9 +12,8 @@ router.get("/getPendingPackages", (req, res) => {
       sub.subjectName,
       ass.dateOfAssignment,
       ass.dateOfDeadline,
-      per.fullName,
-      per.contact,
-      per.email,
+  per.name,
+  per.contact,
       pac.status
     FROM assignment ass
     INNER JOIN package pac ON pac.id = ass.packageID
@@ -52,7 +51,7 @@ router.get('/getPersonSpecificPackage/:personID', (req, res) => {
       sub.subjectName,
       ass.dateOfAssignment,
       ass.dateOfDeadline,
-      per.email as email
+  -- per.email as email (removed)
     FROM assignment ass
     INNER JOIN package pac ON pac.id = ass.packageID
     INNER JOIN exam ex ON ex.id = pac.examID
@@ -89,9 +88,8 @@ router.get("/getPendingExamPackages/:id", (req, res) => {
       sub.subjectName,
       ass.dateOfAssignment,
       ass.dateOfDeadline,
-      per.fullName,
-      per.contact,
-      per.email
+  per.name,
+  per.contact
     FROM assignment ass
     INNER JOIN package pac ON pac.id = ass.packageID
     INNER JOIN exam ex ON ex.id = pac.examID
@@ -121,7 +119,7 @@ router.get("/getPendingExamPackages/:id", (req, res) => {
 });
 
 router.get("/getAssignments", (req, res) => {
-  const assignedQuery = `SELECT person.id, fullName, contact, address, packageCode, noOfPackets, dateOfAssignment, status
+  const assignedQuery = `SELECT person.id, name, contact, campus, packageCode, noOfPackets, dateOfAssignment, status
           FROM person JOIN
           (
             SELECT a.id, dateOfAssignment, dateOfSubmission, noOfPackets, personID, packageCode, status
@@ -195,14 +193,21 @@ router.get("/getExams/:id", (req, res) => {
 });
 
 router.get("/getPerson", (req, res) => {
-  const getAllPerson = `SELECT p.fullName,p.contact, p.email, p.id, c.collegeName FROM person p INNER JOIN college c ON p.collegeID = c.id;`;
+  const getAllPerson = `SELECT id, name, contact, course_code, program, year_part, subject, campus FROM person`;
 
   const db = connectToDB();
   db.all(getAllPerson, [], (err, rows) => {
     if (err) {
       res.status(404).send("The data does not exist");
     } else {
-      res.status(200).send(JSON.parse(JSON.stringify(rows)));
+      // Remove floating point from contact numbers if any
+      const processedRows = rows.map(row => {
+        if (row.contact !== undefined && row.contact !== null) {
+          row.contact = String(row.contact).replace(/\.0$/, "");
+        }
+        return row;
+      });
+      res.status(200).send(JSON.parse(JSON.stringify(processedRows)));
       console.log("Persons returned");
     }
   });
@@ -292,7 +297,7 @@ router.get("/getAllPackages", (req, res) => {
 
   const getPack = `SELECT   pac.id AS id, subjectName, courseCode, subjectName || '-' || date as exam, examType, 
     pac.packageCode, pac.noOfCopies, pac.codeStart || ' - ' || pac.codeEnd as codeRange, pac.status,
-    per.fullName as examinerName, per.contact as examinerContact, ass.dateOfSubmission, ass.resubmissionDate
+  per.name as examinerName, per.contact as examinerContact, ass.dateOfSubmission, ass.resubmissionDate
     FROM package pac 
     INNER JOIN (
       SELECT ex.id AS exam_id, ex.date, ex.examType, sub.subjectName, sub.courseCode 
@@ -321,7 +326,7 @@ router.get("/getAllPackages", (req, res) => {
 
 
 router.get("/getOnePerson/:id", (req, res) => {
-  const getOnePerson = `SELECT *,college.collegeName as college FROM person join college on person.collegeID=college.id WHERE person.id = ? `;
+  const getOnePerson = `SELECT *, campus as college FROM person WHERE person.id = ? `;
 
   const db = connectToDB();
   db.all(getOnePerson, [req.params.id], (err, rows) => {
@@ -435,7 +440,7 @@ router.get("/getOneSubject/:id", (req, res) => {
 });
 
 router.get("/getOneAssignment/:id", (req, res) => {
-  const getOneAssignment = `SELECT packageCode,  contact, dateOfSubmission, dateOfAssignment, fullName AS name, dateofDeadline as dateOfDeadline, package.status as status 
+  const getOneAssignment = `SELECT packageCode, contact, dateOfSubmission, dateOfAssignment, name, dateofDeadline as dateOfDeadline, package.status as status 
   from assignment JOIN person JOIN package 
   where personID = person.id and packageID = package.id and assignment.id =?; `;
   const db = connectToDB();
@@ -628,7 +633,7 @@ router.get("/getPackageAndAssignment/:id", (req, res) => {
   const packageId = req.params.id;
   const query = `
     SELECT pac.*, ass.*, exam_sub.subjectName, exam_sub.courseCode, exam_sub.date, exam_sub.examType,
-      per.fullName as examinerName, per.contact as examinerContact
+  per.name as examinerName, per.contact as examinerContact
     FROM package pac
     INNER JOIN (
       SELECT ex.id AS exam_id, ex.date, ex.examType, sub.subjectName, sub.courseCode

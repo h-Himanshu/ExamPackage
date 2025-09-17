@@ -14,73 +14,13 @@ import Table from "../../Widgets/Tables/tables.jsx";
 import "./persons.css";
 class PersonTable extends React.Component {
   headings = [
-    // name,contact,courseCode,programme,year_part,subject,campus,teachingExperience,experienceinthisSubj,academicQualification,jobType,email
-    {
-      label: "Name",
-      field: "fullName",
-      sort: "asc",
-      width: "100",
-    },
-    {
-      label: "Contact",
-      field: "contact",
-      sort: "asc",
-      width: 100,
-    },
-    // {
-    //   label: "Course Code",
-    //   sort: "asc",
-    //   field: "courseCode",
-    //   grouping:true
-    // },
-    // {
-    //   label: "Programme",
-    //   sort: "asc",
-    //   field: "programme",
-    //   grouping:true
-    // },
-    // {
-    //   label: "Year/Part",
-    //   sort: "asc",
-    //   field: "year_part",
-    //   grouping:true
-    // },
-    // {
-    //   label: "Subject",
-    //   sort: "asc",
-    //   field: "subject"
-    // },
-    {
-      label: "Email",
-      sort: "asc",
-      field: "email",
-    },
-    {
-      label: "College",
-      sort: "asc",
-      field: "collegeName",
-      grouping: true,
-    },
-    // {
-    //   label: "Teaching Experience",
-    //   sort: "asc",
-    //   field: "teachingExperience"
-    // },
-    // {
-    //   label: "Experince in this Subject",
-    //   sort: "asc",
-    //   field: "experienceinthisSub"
-    // },
-    // {
-    //   label: "Academic Qualification",
-    //   sort: "asc",
-    //   field: "academicQualification"
-    // },
-    // {
-    //   label: "Job Type",
-    //   sort: "asc",
-    //   field: "jobType"
-    // },
+    { label: "Name", field: "name", sort: "asc", width: 100 },
+    { label: "Contact", field: "contact", sort: "asc", width: 100 },
+    { label: "Course Code", field: "course_code", sort: "asc", width: 100 },
+    { label: "Program", field: "program", sort: "asc", width: 100 },
+    { label: "Year/Part", field: "year_part", sort: "asc", width: 100 },
+    { label: "Subject", field: "subject", sort: "asc", width: 100 },
+    { label: "Campus", field: "campus", sort: "asc", width: 120 },
   ];
   actions = [
     // {
@@ -109,17 +49,16 @@ class PersonTable extends React.Component {
       .then((res) => res.json())
       .then((json) => {
         let categories = utils.createCategories(json, this.headings);
-        json.map((element, index) => {
-          let id = element.id;
-          for (let key in element)
-            if (key !== "id")
-              element[key] = (
-                <Link key={index} to={`/admin/assign-package/${this.props.id}/${id}`}>
-                  {element[key]}
-                </Link>
-              );
+        // Ensure all required fields exist (only new fields)
+        json.forEach((element) => {
+          element.name = element.name || "";
+          element.contact = element.contact || "";
+          element.course_code = element.course_code || "";
+          element.program = element.program || "";
+          element.year_part = element.year_part || "";
+          element.subject = element.subject || "";
+          element.campus = element.campus || "";
         });
-        console.log(json);
         this.setState({
           isLoaded: true,
           tableData: json,

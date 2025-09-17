@@ -10,11 +10,11 @@ export default defineConfig(() => {
     server: {
       proxy: {
         '/API': {
-          target: 'https://exam-backend.itclub.asmitphuyal.com.np',
+          target: 'http://localhost:9132',
           changeOrigin: true,
         },
         '/user': {
-          target: 'https://exam-backend.itclub.asmitphuyal.com.np',
+          target: 'http://localhost:9132',
           changeOrigin: true,
         },
       },

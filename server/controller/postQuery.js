@@ -1,7 +1,31 @@
 const express = require("express");
+const router = express.Router();
+// Bulk import persons with option to keep or replace existing data
+router.post('/importPersons', (req, res) => {
+  const { data, keepOld } = req.body;
+  const db = connectToDB();
+  db.serialize(() => {
+    if (!keepOld) {
+      db.run('DELETE FROM person');
+    }
+    const stmt = db.prepare('INSERT INTO person (name, contact, course_code, program, year_part, subject, campus) VALUES (?, ?, ?, ?, ?, ?, ?)');
+    for (let i = 1; i < data.length; i++) { // skip header row
+      const row = data[i];
+      // console.log(`Importing row: Name=${row[1]}, Contact=${row[2]}, Course Code=${row[3]}, Program=${row[4]}, Year/Part=${row[5]}, Subject=${row[6]}, Campus=${row[7]}`);
+      let contactValue = row[2];
+      if (typeof contactValue === 'number') {
+        contactValue = contactValue.toFixed(0); // Remove decimals if present
+      }
+      stmt.run(row[1], String(contactValue), row[3], row[4], row[5], row[6], row[7]);
+    }
+    stmt.finalize();
+    db.close();
+    res.json({ message: 'Person table updated successfully.' });
+  });
+});
 const { connectToDB } = require("../database");
 const { check, validationResult } = require("express-validator");
-const router = express.Router();
+const { string } = require("joi");
 
 router.post(
   "/addDepartment",

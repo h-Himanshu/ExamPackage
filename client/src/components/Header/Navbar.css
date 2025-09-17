@@ -1,0 +1,29 @@
+/* Drawer link hover styles */
+.MuiDrawer-paper .MuiListItem-root a {
+  transition: background 0.2s, color 0.2s;
+  border-radius: 4px;
+}
+.MuiDrawer-paper .MuiListItem-root a:hover {
+  background: #f0f4fa;
+  color: #1976d2;
+}
+.MuiDrawer-paper .MuiListItem-root.Mui-selected,
+.MuiDrawer-paper .MuiListItem-root:hover {
+  background: #f0f4fa;
+}
+.MuiDrawer-paper .MuiListItem-root[role="button"]:hover {
+  background: #e3eafc;
+  color: #1565c0;
+}
+@media (max-width: 900px) {
+  .nav-links {
+    display: none !important;
+  }
+  .menu-btn {
+    display: block !important;
+    color: #fff !important;
+  }
+}
+.menu-btn {
+  color: #fff !important;
+}
