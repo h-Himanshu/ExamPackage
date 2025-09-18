@@ -81,7 +81,7 @@ class ExamTable extends React.Component {
           const type = element.examType;
           const sub = element.subjectName;
 
-          element.examTitle = sub + " - " + examYear + " - " + "(" + type + ")";
+          element.examTitle = sub + " - " + examYear ;
         });
 
         const groups = this.groupBy(json, "examTitle");

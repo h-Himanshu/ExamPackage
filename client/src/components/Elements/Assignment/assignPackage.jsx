@@ -291,8 +291,7 @@ Date.prototype.addDays = function (d) {
         let deadlineDate = this.formatEnglishDateToNep(
           this.formatDate(date.addDays(14))
         );
-        console.log(assignmentDate);
-        formData.name.value = json[0].fullName;
+        formData.name.value = json[0].name;
         formData.contact.value = json[0].contact;
         // formData.address.value = json[0].campus;
         formData.college.value = json[0].college;

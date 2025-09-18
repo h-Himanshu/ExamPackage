@@ -7,12 +7,32 @@ import BreadCrumbs from "../../Widgets/Breadcrumb/breadcrumb.jsx";
 import PersonTable from "../Person/personTable.jsx";
 import "./assignment.css";
 
-const breadCrumbItem = [
-  {
-    text: "Persons",
-    link: "/admin/person",
-  },
-];
+const getBreadCrumbItems = () => {
+  const currentPath = window.location.pathname;
+  const isAssignTeacher = currentPath.includes('/assign-teacher');
+  
+  if (isAssignTeacher) {
+    return [
+      {
+        text: "Unassigned Packages",
+        link: "/admin/intermediate"
+      },
+      {
+        text: "Assign Person",
+        link: "" // Current page, no link needed
+      }
+    ];
+  } else {
+    return [
+      {
+        text: "Person",
+        link: "/admin/person"
+      }
+    ];
+  }
+};
+
+const breadCrumbItem = getBreadCrumbItems();
 
 
 class TeacherTable extends React.Component {
@@ -62,12 +82,16 @@ class TeacherTable extends React.Component {
 
 
   render() {
+    // Check if this is an assign-teacher context
+    const currentPath = window.location.pathname;
+    const isAssignTeacherContext = currentPath.includes('/assign-teacher');
+    
     return (
       <React.Fragment>
         <BreadCrumbs breadcrumbItems={breadCrumbItem} />
         <MDBCard>
           <MDBCardHeader>
-            <span>Choose Person to Assign </span>
+            {isAssignTeacherContext && <span>Choose Person to Assign </span>}
             <button
               type="button"
               style={{

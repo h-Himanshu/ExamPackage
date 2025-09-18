@@ -12,8 +12,8 @@ const PackageDetailWrapper = () => {
      <BreadCrumb
         breadcrumbItems={[
           { text: "Packages", link: "/admin/packages" },
-          { text: "View-Package", link: "/admin/packages/view-packages" },
-          { text: "Details", link: `/admin/packages/view-package/${packageId}` },
+          { text: "View-packages", link: "/admin/packages/view-packages" },
+          { text: "Details", link: ""},
         ]}
         />
         <h3>Package Details</h3>
