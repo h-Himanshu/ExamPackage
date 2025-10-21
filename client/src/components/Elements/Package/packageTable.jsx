@@ -98,6 +98,7 @@ class PackageTable extends React.Component {
     isFiltered: false,
     categories: {},
     examTypeFilter: "All", // 'All' | 'Regular' | 'Back'
+    rawData: [], // unformatted, plain objects as returned from API or initialData (status-filtered)
   };
   deleteUnnecessaryTableData = (props) => {
     let receivedProps = props;
@@ -127,6 +128,9 @@ class PackageTable extends React.Component {
       if (sf) {
         json = json.filter((el) => String(el.status || '').toLowerCase() === sf);
       }
+      // store rawData (status-filtered, unformatted) for client-side filters
+      const rawData = [...json];
+      this.setState({ rawData });
       // Apply examType filter if provided via props or local state
       const etFilter = props.examTypeFilter || this.state.examTypeFilter || "All";
       if (etFilter && etFilter !== "All") {
@@ -204,6 +208,9 @@ class PackageTable extends React.Component {
         const sf = String(statusFilter).toLowerCase();
         data = data.filter((el) => String(el.status || '').toLowerCase() === sf);
       }
+      // store rawData (status-filtered, unformatted)
+      const rawData = [...data];
+      this.setState({ rawData });
       // Apply examType filter from props or local state
       const etFilter = this.props.examTypeFilter || this.state.examTypeFilter || "All";
       if (etFilter && etFilter !== "All") {
@@ -252,6 +259,9 @@ class PackageTable extends React.Component {
             let source = statusFilter
               ? json.filter((el) => String(el.status || '').toLowerCase() === String(statusFilter).toLowerCase())
               : json;
+            // store rawData (status-filtered, unformatted)
+            const rawData = [...source];
+            this.setState({ rawData });
             // Apply examType filter from props or local state
             const etFilter = this.props.examTypeFilter || this.state.examTypeFilter || "All";
             if (etFilter && etFilter !== "All") {
@@ -305,13 +315,14 @@ class PackageTable extends React.Component {
     const val = event.target.value;
     // Update state and reapply filtering to base data (use initialData if present, else refetch tableData)
     this.setState({ examTypeFilter: val }, () => {
-      // Recompute visible data
+      // Recompute visible data using rawData (plain JS objects)
       let source = [];
       if (this.props.initialData) {
         source = [...this.props.initialData];
+      } else if (Array.isArray(this.state.rawData) && this.state.rawData.length > 0) {
+        source = [...this.state.rawData];
       } else {
-        // Use the last fetched plain data from tableData before Link-wrapping if possible
-        // We will map back to plain values by taking current tableData and stripping React elements
+        // fallback: try to map from current tableData
         source = this.state.tableData.map(row => {
           const plain = {};
           for (let k of Object.keys(row)) {
@@ -332,7 +343,7 @@ class PackageTable extends React.Component {
       }
       // Apply examType filter
       if (val && val !== "All") {
-        source = source.filter((el) => String(el.examType || '').toLowerCase() === String(val).toLowerCase());
+        source = source.filter((el) => String(el.examType || '').trim().toLowerCase() === String(val).trim().toLowerCase());
       }
       const formattedData = this.formatTableData(source);
       let clickableData = formattedData.map((element) => {
