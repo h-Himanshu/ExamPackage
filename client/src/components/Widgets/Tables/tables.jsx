@@ -200,10 +200,17 @@ class MainTable extends React.Component {
             setState={(states) => this.stateHandler(states)}
             headings={this.props.headings}
             categories={this.props.categories}
+            advancedRightControl={this.props.leftOfSearch}
           />
         )}
 
   <div>
+        {/* Global control row: place leftOfSearch (e.g., exam type selector) right-aligned above the table (outside Advanced Search) */}
+        {this.props.leftOfSearch ? (
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '8px' }}>
+            <div>{this.props.leftOfSearch}</div>
+          </div>
+        ) : null}
           <style>
             {`
               .table tbody tr td:first-child {
@@ -213,7 +220,7 @@ class MainTable extends React.Component {
             `}
           </style>
           <MDBDataTable
-            //searching={false}
+            searching={false}
             data={this.data()}
             bordered
             sortable

@@ -10,17 +10,15 @@ export default defineConfig(() => {
     server: {
       proxy: {
         '/API': {
-          target: 'http://localhost:9132',
+          target: 'http://127.0.0.1:9132',
           changeOrigin: true,
         },
         '/user': {
-          target: 'http://localhost:9132',
+          target: 'http://127.0.0.1:9132',
           changeOrigin: true,
         },
       },
-      allowedHosts: [
-        'exam-pkg-mgmt.itclub.asmitphuyal.com.np'
-      ],
+    
     },
   };
 });

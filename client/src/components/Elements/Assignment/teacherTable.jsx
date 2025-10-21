@@ -39,6 +39,7 @@ class TeacherTable extends React.Component {
   constructor(props) {
     super(props);
     this.fileInputRef = React.createRef();
+    this.personTableRef = React.createRef();
     this.state = {
       excelData: [],
     };
@@ -65,15 +66,57 @@ class TeacherTable extends React.Component {
 
         // Ask user if they want to keep previous data
         const keepOld = window.confirm("Do you want to keep previous data in the person table? Click OK to keep, Cancel to replace.");
-  fetch('/API/query/importPersons', {
+        fetch('/API/query/importPersons', {
           method: 'POST',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ data: jsonData, keepOld })
         })
-          .then(res => res.json())
-          .then(result => {
+          .then(async (res) => {
+            if (res.status === 401) {
+              alert('Unauthorized: please login before importing.');
+              return Promise.reject(new Error('Unauthorized'));
+            }
+            if (!res.ok) {
+              const txt = await res.text();
+              alert('Import failed: ' + txt);
+              return Promise.reject(new Error('Import failed'));
+            }
+            return res.json();
+          })
+          .then(async (result) => {
             alert(result.message);
-          });
+            // Try to refresh the visible persons list immediately
+            try {
+              if (this.personTableRef && this.personTableRef.current && typeof this.personTableRef.current.loadData === 'function') {
+                this.personTableRef.current.loadData();
+              }
+            } catch (err) {
+              console.warn('Could not refresh PersonTable after import', err);
+            }
+
+            // As a verification, fetch the persons list to confirm server has new rows
+            try {
+              const check = await fetch('/API/query/getPerson', { credentials: 'include' });
+              if (check.status === 401) {
+                alert('Import succeeded but fetching persons failed with 401 (not authenticated).');
+              } else if (!check.ok) {
+                console.warn('Could not fetch persons after import', await check.text());
+              } else {
+                const people = await check.json();
+                console.log('Persons count after import:', people.length);
+              }
+            } catch (err) {
+              console.warn('Error checking persons after import', err);
+            }
+
+            // Navigate to person page to show latest data
+            try {
+              window.location.href = '/admin/person';
+            } catch (e) {
+              window.location.reload();
+            }
+          }).catch(err => console.warn('Import error', err));
       };
       reader.readAsArrayBuffer(file);
     }
@@ -116,7 +159,7 @@ class TeacherTable extends React.Component {
             />
           </MDBCardHeader>
           <MDBCardBody>
-            <PersonTable id={this.props.id} />
+            <PersonTable ref={this.personTableRef} id={this.props.id} />
           </MDBCardBody>
         </MDBCard>
       </React.Fragment>

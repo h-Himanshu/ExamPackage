@@ -1,4 +1,5 @@
 import axios from "axios";
+import * as XLSX from 'xlsx';
 import { MDBCard, MDBCardBody, MDBCardHeader } from "mdb-react-ui-kit";
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -273,43 +274,55 @@ class Person extends React.Component {
     });
   };
   uploadFile = async () => {
-    const data = new FormData();
-    data.append("file", this.state.selectedFile);
-    if (this.state.selectedFile === null) {
-      this.setState({
-        isInserting: "empty",
-        loaded: 0,
-      });
+    const file = this.state.selectedFile;
+    if (!file) {
+      this.setState({ isInserting: 'empty', loaded: 0 });
       return;
     }
-    const res = await axios.post("/API/query/upload", data, {
-      onUploadProgress: (ProgressEvent) => {
-        this.setState({
-          loaded: (ProgressEvent.loaded / ProgressEvent.total) * 100,
+
+    this.setState({ isInserting: 'onProgress' });
+
+    try {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const firstSheet = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheet];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+        // Ask user if they want to keep previous data
+        const keepOld = window.confirm("Do you want to keep previous data in the person table? Click OK to keep, Cancel to replace.");
+
+        const res = await fetch('/API/query/importPersons', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ data: jsonData, keepOld })
         });
-      },
-    });
 
-    this.setState({
-      isInserting: "onProgress",
-    });
+        if (res.status === 401) {
+          alert('Unauthorized: please login to import');
+          this.setState({ isInserting: 'error', loaded: 0 });
+          return;
+        }
+        if (!res.ok) {
+          const txt = await res.text();
+          alert('Import failed: ' + txt);
+          this.setState({ isInserting: 'error', loaded: 0 });
+          return;
+        }
 
-    let response = await fetch("/API/query/postExcel", {
-      method: "post",
-      headers: {
-        Accept: "application/json",
-      },
-    });
-    if (response.status == 500) {
-      this.setState({
-        isInserting: "error",
-        loaded: 0,
-      });
-    }
-    if (response && response.status == 200) {
-      this.setState({
-        isInserting: "done",
-      });
+        const json = await res.json();
+        this.setState({ isInserting: 'done', loaded: 100 });
+        console.log('Import response:', json);
+        // Redirect to person list so it reloads and shows imported rows
+        window.location.href = '/admin/person';
+      };
+      reader.readAsArrayBuffer(file);
+    } catch (err) {
+      console.error(err);
+      this.setState({ isInserting: 'error', loaded: 0 });
     }
 
     //  fetch(import.meta.env.VITE_BACKEND_URL+"API/query/upload", {

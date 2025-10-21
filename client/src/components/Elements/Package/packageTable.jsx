@@ -97,6 +97,7 @@ class PackageTable extends React.Component {
     filtered: [],
     isFiltered: false,
     categories: {},
+    examTypeFilter: "All", // 'All' | 'Regular' | 'Back'
   };
   deleteUnnecessaryTableData = (props) => {
     let receivedProps = props;
@@ -125,6 +126,11 @@ class PackageTable extends React.Component {
       let json = props.initialData;
       if (sf) {
         json = json.filter((el) => String(el.status || '').toLowerCase() === sf);
+      }
+      // Apply examType filter if provided via props or local state
+      const etFilter = props.examTypeFilter || this.state.examTypeFilter || "All";
+      if (etFilter && etFilter !== "All") {
+        json = json.filter((el) => String(el.examType || '').toLowerCase() === String(etFilter).toLowerCase());
       }
       // Format data to ensure empty fields show as '—'
       const formattedData = this.formatTableData(json);
@@ -198,6 +204,11 @@ class PackageTable extends React.Component {
         const sf = String(statusFilter).toLowerCase();
         data = data.filter((el) => String(el.status || '').toLowerCase() === sf);
       }
+      // Apply examType filter from props or local state
+      const etFilter = this.props.examTypeFilter || this.state.examTypeFilter || "All";
+      if (etFilter && etFilter !== "All") {
+        data = data.filter((el) => String(el.examType || '').toLowerCase() === String(etFilter).toLowerCase());
+      }
       // Format the data before setting state so empty fields show as '—'
       const formattedData = this.formatTableData(data);
       const clickableData = (this.props.disableClickable || statusFilter)
@@ -238,9 +249,14 @@ class PackageTable extends React.Component {
             if (statusFilter && this.headings.some((h) => h.label === "Status")) {
               this.headings = this.headings.filter((el) => el.label !== "Status");
             }
-            const source = statusFilter
+            let source = statusFilter
               ? json.filter((el) => String(el.status || '').toLowerCase() === String(statusFilter).toLowerCase())
               : json;
+            // Apply examType filter from props or local state
+            const etFilter = this.props.examTypeFilter || this.state.examTypeFilter || "All";
+            if (etFilter && etFilter !== "All") {
+              source = source.filter((el) => String(el.examType || '').toLowerCase() === String(etFilter).toLowerCase());
+            }
             // Format the data before setting state
             const formattedData = this.formatTableData(source);
             console.log('Formatted data:', formattedData[0]);
@@ -268,7 +284,7 @@ class PackageTable extends React.Component {
               return clickableRow;
             });
             // Build categories from plain formatted data to avoid React elements in <option>
-            let categories = utils.createCategories(formattedData, this.headings);
+              let categories = utils.createCategories(formattedData, this.headings);
             this.setState({
               isLoaded: true,
               tableData: clickableData,
@@ -283,6 +299,66 @@ class PackageTable extends React.Component {
   statehandler = (states) => {
     this.setState(states);
     console.log(this.state);
+  };
+
+  handleExamTypeFilterChange = (event) => {
+    const val = event.target.value;
+    // Update state and reapply filtering to base data (use initialData if present, else refetch tableData)
+    this.setState({ examTypeFilter: val }, () => {
+      // Recompute visible data
+      let source = [];
+      if (this.props.initialData) {
+        source = [...this.props.initialData];
+      } else {
+        // Use the last fetched plain data from tableData before Link-wrapping if possible
+        // We will map back to plain values by taking current tableData and stripping React elements
+        source = this.state.tableData.map(row => {
+          const plain = {};
+          for (let k of Object.keys(row)) {
+            const v = row[k];
+            if (React.isValidElement(v)) {
+              plain[k] = v.props && v.props.children ? v.props.children : v;
+            } else {
+              plain[k] = v;
+            }
+          }
+          return plain;
+        });
+      }
+      // Apply statusFilter if present
+      if (this.props.statusFilter) {
+        const sf = String(this.props.statusFilter).toLowerCase();
+        source = source.filter((el) => String(el.status || '').toLowerCase() === sf);
+      }
+      // Apply examType filter
+      if (val && val !== "All") {
+        source = source.filter((el) => String(el.examType || '').toLowerCase() === String(val).toLowerCase());
+      }
+      const formattedData = this.formatTableData(source);
+      let clickableData = formattedData.map((element) => {
+        if (this.props.disableClickable || this.props.statusFilter) {
+          return { ...element };
+        }
+        let id = element.id;
+        let clickableRow = { ...element };
+        for (let key in clickableRow) {
+          if (
+            key !== "id" &&
+            typeof clickableRow[key] !== "object" &&
+            typeof clickableRow[key] !== "undefined"
+          ) {
+            clickableRow[key] = (
+              <Link key={key} to={`/admin/packages/view-packages/${id}`} style={{ color: "inherit", textDecoration: "none" }}>
+                {element[key]}
+              </Link>
+            );
+          }
+        }
+        return clickableRow;
+      });
+      let categories = utils.createCategories(formattedData, this.headings);
+      this.setState({ tableData: clickableData, categories: categories, isFiltered: false, filtered: [] });
+    });
   };
 
   // Safely convert any value (including React elements) to plain text for export
@@ -360,6 +436,17 @@ class PackageTable extends React.Component {
 
   render() {
     console.log(this.state.tableData);
+    const leftOfSearchNode = (
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <label style={{ marginRight: '8px', marginBottom: 0 }}>Show exam type:</label>
+        <select className="form-control" style={{ width: '160px' }} value={this.state.examTypeFilter} onChange={this.handleExamTypeFilterChange}>
+          <option value="All">All</option>
+          <option value="Regular">Regular</option>
+          <option value="Back">Back</option>
+        </select>
+      </div>
+    );
+
     return (
       <div className="mainTable">
         <Table
@@ -372,6 +459,7 @@ class PackageTable extends React.Component {
           setState={(states) => this.statehandler(states)}
           actions={this.actions}
           categories={this.state.categories}
+          leftOfSearch={leftOfSearchNode}
         />
         <div className="d-flex justify-content-center" style={{ marginBottom: '10px' }}>
           <button type="button" className="btn btn-secondary" onClick={this.handleGenerateReport}>Generate Report</button>

@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from "react";
-import Select from "react-dropdown-select";
+// removed unused Select import
 
 class TableOptions extends Component {
+  // consolidated component state (removed sort-related state)
   state = {
     isAdvancedSearch: false,
     searchBy: 0,
@@ -299,6 +300,14 @@ class TableOptions extends Component {
             id="advancedSearchOptions"
             hidden
           >
+            {/* optional control row: place advancedRightControl above search, aligned right */}
+            {this.props.advancedRightControl ? (
+              <div className="row">
+                <div className="col-12 d-flex justify-content-end" style={{ marginBottom: '8px' }}>
+                  {this.props.advancedRightControl}
+                </div>
+              </div>
+            ) : null}
             <div className="row">
               {this.searchByBar()}
               {this.searchBar()}

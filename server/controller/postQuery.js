@@ -3,29 +3,88 @@ const router = express.Router();
 // Bulk import persons with option to keep or replace existing data
 router.post('/importPersons', (req, res) => {
   const { data, keepOld } = req.body;
+
+  if (!Array.isArray(data) || data.length === 0) {
+    return res.status(400).json({ message: 'No data provided' });
+  }
+
+  console.log(`[IMPORT] Received importPersons request. rows=${data.length}, keepOld=${keepOld}`);
+  if (data.length > 1) console.log('[IMPORT] Sample header:', data[0]);
+
+  // Expect first row to be header (array of column names)
+  const headerRow = Array.isArray(data[0]) ? data[0].map(h => (h || '').toString().trim().toLowerCase()) : null;
+
+  // helper to find index of a header by list of possible names
+  const findIdx = (names) => {
+    if (!headerRow) return -1;
+    for (let i = 0; i < headerRow.length; i++) {
+      for (const n of names) {
+        if (headerRow[i].includes(n.toLowerCase())) return i;
+      }
+    }
+    return -1;
+  };
+
+  // common header name possibilities
+  const nameKeys = ['name', 'name of teacher', 'full name'];
+  const contactKeys = ['contact', 'mobile', 'mobile no', 'mobile no.', 'mobile no', 'mobile number', 'mobile no', 'mobile no.','mobile no','mobile no.','mobile'];
+  const courseCodeKeys = ['course code', 'coursecode', 'course'];
+  const programKeys = ['program', 'programe', 'programme', 'program name'];
+  const yearPartKeys = ['year/part', 'year part', 'year', 'part'];
+  const subjectKeys = ['subject', 'subject name'];
+  const campusKeys = ['campus', 'campus code', '1 campus code', 'college'];
+
+  const nameIdx = findIdx(nameKeys);
+  const contactIdx = findIdx(contactKeys);
+  const courseIdx = findIdx(courseCodeKeys);
+  const programIdx = findIdx(programKeys);
+  const yearIdx = findIdx(yearPartKeys);
+  const subjectIdx = findIdx(subjectKeys);
+  const campusIdx = findIdx(campusKeys);
+
   const db = connectToDB();
   db.serialize(() => {
     if (!keepOld) {
       db.run('DELETE FROM person');
     }
+
     const stmt = db.prepare('INSERT INTO person (name, contact, course_code, program, year_part, subject, campus) VALUES (?, ?, ?, ?, ?, ?, ?)');
-    for (let i = 1; i < data.length; i++) { // skip header row
+
+    for (let i = 1; i < data.length; i++) {
       const row = data[i];
-      // console.log(`Importing row: Name=${row[1]}, Contact=${row[2]}, Course Code=${row[3]}, Program=${row[4]}, Year/Part=${row[5]}, Subject=${row[6]}, Campus=${row[7]}`);
-      let contactValue = row[2];
-      if (typeof contactValue === 'number') {
-        contactValue = contactValue.toFixed(0); // Remove decimals if present
-      }
-      stmt.run(row[1], String(contactValue), row[3], row[4], row[5], row[6], row[7]);
+      if (!Array.isArray(row)) continue;
+
+      const getVal = (idx) => (idx >= 0 && idx < row.length ? row[idx] : '');
+
+      let name = nameIdx >= 0 ? getVal(nameIdx) : getVal(1);
+      let contact = contactIdx >= 0 ? getVal(contactIdx) : getVal(2);
+      let course_code = courseIdx >= 0 ? getVal(courseIdx) : getVal(3);
+      let program = programIdx >= 0 ? getVal(programIdx) : getVal(4);
+      let year_part = yearIdx >= 0 ? getVal(yearIdx) : getVal(5);
+      let subject = subjectIdx >= 0 ? getVal(subjectIdx) : getVal(6);
+      let campus = campusIdx >= 0 ? getVal(campusIdx) : getVal(7);
+
+      if (typeof contact === 'number') contact = contact.toFixed(0);
+      contact = String(contact || '');
+
+      stmt.run(name || '', contact, course_code || '', program || '', year_part || '', subject || '', campus || '');
     }
-    stmt.finalize();
-    db.close();
-    res.json({ message: 'Person table updated successfully.' });
+
+    stmt.finalize((err) => {
+      db.close();
+      if (err) {
+        console.error('Error finalizing stmt:', err);
+        return res.status(500).json({ message: 'Error inserting rows', error: err.message });
+      }
+      console.log('[IMPORT] Insert completed successfully');
+      return res.json({ message: 'Person table updated successfully.' });
+    });
   });
 });
 const { connectToDB } = require("../database");
 const { check, validationResult } = require("express-validator");
 const { string } = require("joi");
+// Note: server-side upload/postExcel removed. Client-side Excel parsing and POST to /importPersons is used instead.
 
 router.post(
   "/addDepartment",

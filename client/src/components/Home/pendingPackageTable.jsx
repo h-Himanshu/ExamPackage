@@ -3,6 +3,8 @@ import adbs from "ad-bs-converter";
 import React from "react";
 import utils from "../../utils/utils.jsx";
 import Table from "../Widgets/Tables/tables.jsx";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 class PendingPackageTable extends React.Component {
   sortingOnlyList = ["Status"];
@@ -155,6 +157,43 @@ class PendingPackageTable extends React.Component {
   statehandler = (states) => {
     this.setState(states);
   };
+
+  // Generate PDF report for current visible rows
+  handleGenerateReport = () => {
+    try {
+      const headers = ["S.N", ...this.headings.map(h => h.label)];
+      const fields = this.headings.map(h => h.field);
+      const rows = (this.state.isFiltered ? this.state.filtered : this.state.tableData).map((row, idx) => {
+        return [idx + 1, ...fields.map(f => (row[f] ? row[f] : '—'))];
+      });
+
+      const orientation = headers.length > 7 ? 'landscape' : 'portrait';
+      const doc = new jsPDF({ orientation, unit: 'pt', format: 'a4' });
+      const title = 'Pending Packages Report';
+      doc.setFontSize(14);
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const textWidth = doc.getTextWidth(title);
+      doc.text(title, (pageWidth - textWidth) / 2, 40);
+
+      autoTable(doc, {
+        head: [headers],
+        body: rows,
+        startY: 60,
+        styles: { fontSize: 8, cellPadding: 4 },
+        headStyles: { fillColor: [52, 58, 64], halign: 'center' },
+        bodyStyles: { valign: 'middle' },
+        theme: 'grid'
+      });
+
+      const ts = new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 17);
+      const rand = Math.random().toString(36).slice(2, 8);
+      const fileName = `pending-packages-${ts}-${rand}.pdf`;
+      doc.save(fileName);
+    } catch (err) {
+      console.error('Failed to generate pending PDF', err);
+      alert('Failed to generate PDF');
+    }
+  }
   render() {
     console.log(this.state.tableData);
     return (
@@ -170,8 +209,12 @@ class PendingPackageTable extends React.Component {
           actions={this.actions}
           categories={this.state.categories}
         />
+        <div className="d-flex justify-content-center" style={{ marginBottom: '10px' }}>
+          <button type="button" className="btn btn-secondary" onClick={() => this.handleGenerateReport()}>Download Pending Report (PDF)</button>
+        </div>
       </div>
     );
   }
 }
 export default PendingPackageTable;
+

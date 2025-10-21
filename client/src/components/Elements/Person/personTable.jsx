@@ -50,7 +50,8 @@ class PersonTable extends React.Component {
     isLoaded: true,
   };
 
-  componentWillMount = () => {
+  // Load data from server and set state. This can be called externally via ref.
+  loadData = () => {
     fetch("/API/query/getPerson")
       .then((res) => res.json())
       .then((json) => {
@@ -65,22 +66,14 @@ class PersonTable extends React.Component {
           element.year_part = element.year_part || "";
           element.subject = element.subject || "";
           element.campus = element.campus || "";
-        
         });
 
         // Check if this is an assignment context (assign-teacher or assign-package)
         const currentPath = window.location.pathname;
         const isAssignmentContext = currentPath.includes('/assign-teacher') || currentPath.includes('/assign-package');
-        
-        // console.log('PersonTable - Current Path:', currentPath);
-        // console.log('PersonTable - Is Assignment Context:', isAssignmentContext);
-        // console.log('PersonTable - Props ID:', this.props.id);
-        
+
         // Make person data clickable for assignment ONLY if in assignment context
         if (isAssignmentContext && this.props.id) {
-          // console.log('PersonTable - Making data clickable');
-          // Instead of wrapping individual cells, we'll add click handlers via CSS/JS
-          // This preserves sorting capability while making rows clickable
           json.forEach((element, index) => {
             // Add a special property to indicate this row should be clickable
             element._isClickable = true;
@@ -96,6 +89,10 @@ class PersonTable extends React.Component {
           categories: categories,
         });
       });
+  };
+
+  componentWillMount = () => {
+    this.loadData();
   };
 
   componentDidMount() {
